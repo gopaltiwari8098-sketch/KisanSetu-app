@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign Up - KisanSetu</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%BE%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/navbar.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/forms.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="index.html" class="navbar__logo">Kisan<span>Setu</span></a>
+  <ul class="navbar__links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="price-trends.html">Price Trends</a></li>
+    <li><a href="schemes.html">Schemes</a></li>
+  </ul>
+  <a href="login.html" class="navbar__cta">Login</a>
+  <button class="navbar__menu-toggle" aria-label="Menu">&#9776;</button>
+</nav>
+
+<section class="auth-page">
+  <div class="auth-card">
+    <p class="auth-card__eyebrow">Naya account</p>
+    <h1 class="auth-card__heading">Account banaye</h1>
+    <p class="auth-card__subtext">KisanSetu join karein aur apni fasal ka sahi daam paaye.</p>
+
+    <form id="signupForm" novalidate>
+      <div class="form-group" id="nameGroup">
+        <label for="name">Pura naam</label>
+        <input type="text" id="name" name="name" placeholder="Apna naam likhein" autocomplete="name">
+        <p class="form-error">Naam daalna zaroori hai.</p>
+      </div>
+
+      <div class="form-group" id="signupEmailGroup">
+        <label for="signupEmail">Email</label>
+        <input type="email" id="signupEmail" name="email" placeholder="aapka@email.com" autocomplete="email">
+        <p class="form-error">Sahi email address daalein.</p>
+      </div>
+
+      <div class="form-group" id="phoneGroup">
+        <label for="phone">Phone number</label>
+        <input type="tel" id="phone" name="phone" placeholder="10 digit mobile number" autocomplete="tel">
+        <p class="form-error">10 digit ka sahi mobile number daalein.</p>
+      </div>
+
+      <div class="form-group" id="locationGroup">
+        <label for="state">Apna state chunein</label>
+        <select id="state" name="state">
+          <option value="">State chunein</option>
+          <option value="UP">Uttar Pradesh</option>
+          <option value="MP">Madhya Pradesh</option>
+          <option value="Punjab">Punjab</option>
+          <option value="Haryana">Haryana</option>
+          <option value="Rajasthan">Rajasthan</option>
+          <option value="Bihar">Bihar</option>
+          <option value="Maharashtra">Maharashtra</option>
+          <option value="Other">Other</option>
+        </select>
+        <p class="form-error">Apna state chunein.</p>
+      </div>
+
+      <div class="form-group" id="signupPasswordGroup">
+        <label for="signupPassword">Password</label>
+        <input type="password" id="signupPassword" name="password" placeholder="Kam se kam 6 characters" autocomplete="new-password">
+        <p class="form-error">Password kam se kam 6 characters ka hona chahiye.</p>
+      </div>
+
+      <div class="form-group" id="confirmPasswordGroup">
+        <label for="confirmPassword">Password confirm karein</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Password dobara likhein" autocomplete="new-password">
+        <p class="form-error">Passwords match nahi kar rahe.</p>
+      </div>
+
+      <button type="submit" class="auth-submit">Account banaye</button>
+    </form>
+
+    <div class="auth-divider">ya</div>
+
+    <p class="auth-footer-text">Already account hai? <a href="login.html">Yahan login karein</a></p>
+  </div>
+</section>
+
+<script src="js/utils/tokenStorage.js"></script>
+<script src="js/api/authApi.js"></script>
+<script src="js/pages/auth.js"></script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+:root {
+  /* Colors - mandi rate-board palette */
+  --color-bg: #F6F1E7;
+  --color-surface: #FFFFFF;
+  --color-primary: #1F5C3D;
+  --color-primary-dark: #123D28;
+  --color-accent: #E0863A;
+  --color-accent-dark: #B5691F;
+  --color-text: #1C2419;
+  --color-text-muted: #5C6357;
+  --color-border: #DCD3BE;
+  --color-success: #2E7D4F;
+  --color-danger: #C0392B;
+
+  /* Typography */
+  --font-display: 'Baloo 2', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Spacing */
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2.5rem;
+  --space-xl: 4rem;
+
+  /* Misc */
+  --radius: 10px;
+  --shadow-card: 0 2px 8px rgba(28, 36, 25, 0.08);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #14201A;
+    --color-surface: #1C2920;
+    --color-primary: #4CAF7D;
+    --color-primary-dark: #6FCB9D;
+    --color-accent: #F0A057;
+    --color-accent-dark: #FFC080;
+    --color-text: #EDF2EA;
+    --color-text-muted: #A8B5A0;
+    --color-border: #33473A;
+    --color-success: #5BC98A;
+    --color-danger: #E5746C;
+    --shadow-card: 0 2px 10px rgba(0, 0, 0, 0.35);
+  }
+}

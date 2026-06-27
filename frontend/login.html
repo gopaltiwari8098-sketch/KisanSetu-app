@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - KisanSetu</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%BE%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/navbar.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/forms.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="index.html" class="navbar__logo">Kisan<span>Setu</span></a>
+  <ul class="navbar__links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="price-trends.html">Price Trends</a></li>
+    <li><a href="schemes.html">Schemes</a></li>
+  </ul>
+  <a href="signup.html" class="navbar__cta">Sign up</a>
+  <button class="navbar__menu-toggle" aria-label="Menu">&#9776;</button>
+</nav>
+
+<section class="auth-page">
+  <div class="auth-card">
+    <p class="auth-card__eyebrow">Wapas aana hua</p>
+    <h1 class="auth-card__heading">Login karein</h1>
+    <p class="auth-card__subtext">Apne account mein login karke mandi rates aur forecasts dekhein.</p>
+
+    <form id="loginForm" novalidate>
+      <div class="form-group" id="emailGroup">
+        <label for="email">Email ya phone number</label>
+        <input type="text" id="email" name="email" placeholder="aapka@email.com" autocomplete="username">
+        <p class="form-error">Sahi email ya phone number daalein.</p>
+      </div>
+
+      <div class="form-group" id="passwordGroup">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Apna password daalein" autocomplete="current-password">
+        <p class="form-error">Password kam se kam 6 characters ka hona chahiye.</p>
+      </div>
+
+      <button type="submit" class="auth-submit">Login karein</button>
+    </form>
+
+    <div class="auth-divider">ya</div>
+
+    <p class="auth-footer-text">Account nahi hai? <a href="signup.html">Yahan signup karein</a></p>
+  </div>
+</section>
+
+<script src="js/utils/tokenStorage.js"></script>
+<script src="js/api/authApi.js"></script>
+<script src="js/pages/auth.js"></script>
+</body>
+</html>
