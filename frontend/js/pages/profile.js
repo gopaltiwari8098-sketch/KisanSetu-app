@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('saveProfileBtn').addEventListener('click', async function () {
+    const btn = this;
     const payload = {
       fullName: document.getElementById('fullName').value,
       email: document.getElementById('profileEmail').value,
@@ -30,7 +31,12 @@ document.addEventListener('DOMContentLoaded', () => {
       state: document.getElementById('profileState').value
     };
 
+    setButtonLoading(btn, true, 'Save ho raha hai...');
+    await delay(700);
+
     const result = await updateFarmerProfile(payload);
+    setButtonLoading(btn, false);
+
     if (!result) {
       alert('Demo mode: backend abhi connect nahi hai, isliye save permanently nahi hoga.');
       return;

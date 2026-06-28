@@ -144,11 +144,6 @@ a { color: inherit; }
   .ticker__track { animation: scroll-ticker 90s linear infinite; }
 }
 
-@keyframes scroll-ticker {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-
 /* ---------- Feature cards ---------- */
 .features {
   padding: var(--space-xl) 0;

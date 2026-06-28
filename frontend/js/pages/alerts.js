@@ -8,22 +8,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const condition = document.getElementById('alertCondition');
     const priceInput = document.getElementById('alertPrice');
     const price = priceInput.value;
+    const submitBtn = form.querySelector('button[type="submit"]');
 
     if (!price) return;
+
+    setButtonLoading(submitBtn, true, 'Alert ban raha hai...');
+    await delay(500);
 
     const conditionText = condition.value === 'above'
       ? `Jab price ₹${price}/q se upar jaye`
       : `Jab price ₹${price}/q se neeche jaye`;
 
-    const result = await createAlert({
-      crop: crop.value,
-      condition: condition.value,
-      targetPrice: price
-    });
-
-    if (!result) {
-      console.log('Demo mode: backend nahi hai, sirf UI mein add ho rha hai.');
-    }
+    const result = await createAlert({ crop: crop.value, condition: condition.value, targetPrice: price });
+    if (!result) console.log('Demo mode: backend nahi hai, sirf UI mein add ho rha hai.');
 
     const item = document.createElement('div');
     item.className = 'alert-item';
@@ -38,12 +35,12 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>`;
     list.appendChild(item);
     priceInput.value = '';
+    setButtonLoading(submitBtn, false);
   });
 
   list.addEventListener('click', async (e) => {
     if (e.target.classList.contains('alert-item__delete')) {
       e.target.closest('.alert-item').remove();
-      // TODO: backend ban jaane par yahan deleteAlert(alertId) call karein
     }
   });
 });

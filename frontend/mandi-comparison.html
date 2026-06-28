@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="css/variables.css">
 <link rel="stylesheet" href="css/navbar.css">
 <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/animations.css">
 </head>
 <body>
 
@@ -45,7 +46,15 @@
       </select>
     </div>
 
-    <div class="mandi-grid" id="mandiGrid">
+    <div class="mandi-grid" id="mandiSkeleton">
+      <div class="skeleton skeleton-card"></div>
+      <div class="skeleton skeleton-card"></div>
+      <div class="skeleton skeleton-card"></div>
+      <div class="skeleton skeleton-card"></div>
+      <div class="skeleton skeleton-card"></div>
+      <div class="skeleton skeleton-card"></div>
+    </div>
+    <div class="mandi-grid" id="mandiGrid" style="display:none;">
       <div class="mandi-card mandi-card--best">
         <span class="mandi-card__badge">Best price</span>
         <p class="mandi-card__name">Meerut Mandi</p>

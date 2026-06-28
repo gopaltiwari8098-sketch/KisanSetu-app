@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="css/navbar.css">
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/dashboard.css">
+<link rel="stylesheet" href="css/animations.css">
 </head>
 <body>
 
@@ -34,7 +35,13 @@
       <h1 class="dashboard__name">Namaste, <span id="farmerName">Kisan</span></h1>
     </div>
 
-    <div class="stats-grid">
+    <div class="stats-grid" id="statsSkeleton">
+      <div class="skeleton skeleton-card"></div>
+      <div class="skeleton skeleton-card"></div>
+      <div class="skeleton skeleton-card"></div>
+      <div class="skeleton skeleton-card"></div>
+    </div>
+    <div class="stats-grid" id="statsReal" style="display:none;">
       <div class="stat-card">
         <p class="stat-card__label">Aaj ka best price</p>
         <p class="stat-card__value">&#8377;2150<span style="font-size:0.9rem;">/q</span></p>

@@ -13,37 +13,33 @@ function isValidPhone(value) {
 
 const loginForm = document.getElementById('loginForm');
 if (loginForm) {
-  loginForm.addEventListener('submit', function (e) {
+  loginForm.addEventListener('submit', async function (e) {
     e.preventDefault();
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
+    const submitBtn = loginForm.querySelector('button[type="submit"]');
 
     let valid = true;
 
-    if (!email) {
-      showError('emailGroup', true);
-      valid = false;
-    } else {
-      showError('emailGroup', false);
-    }
+    if (!email) { showError('emailGroup', true); valid = false; }
+    else { showError('emailGroup', false); }
 
-    if (password.length < 6) {
-      showError('passwordGroup', true);
-      valid = false;
-    } else {
-      showError('passwordGroup', false);
-    }
+    if (password.length < 6) { showError('passwordGroup', true); valid = false; }
+    else { showError('passwordGroup', false); }
 
     if (!valid) return;
 
+    setButtonLoading(submitBtn, true, 'Login ho raha hai...');
+    await delay(700);
     console.log('Login submit:', { email, password });
-    // TODO: backend ready hone par yahan authApi.login(email, password) call karein
+    // TODO: backend ready hone par yahan authApi.loginUser(email, password) call karein
+    setButtonLoading(submitBtn, false);
   });
 }
 
 const signupForm = document.getElementById('signupForm');
 if (signupForm) {
-  signupForm.addEventListener('submit', function (e) {
+  signupForm.addEventListener('submit', async function (e) {
     e.preventDefault();
 
     const name = document.getElementById('name').value.trim();
@@ -52,6 +48,7 @@ if (signupForm) {
     const state = document.getElementById('state').value;
     const password = document.getElementById('signupPassword').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
+    const submitBtn = signupForm.querySelector('button[type="submit"]');
 
     let valid = true;
 
@@ -79,7 +76,10 @@ if (signupForm) {
 
     if (!valid) return;
 
+    setButtonLoading(submitBtn, true, 'Account ban raha hai...');
+    await delay(700);
     console.log('Signup submit:', { name, email, phone, state, password });
-    // TODO: backend ready hone par yahan authApi.signup(...) call karein
+    // TODO: backend ready hone par yahan authApi.signupUser(...) call karein
+    setButtonLoading(submitBtn, false);
   });
 }
