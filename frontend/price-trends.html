@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Price Trends - KisanSetu</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%BE%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/navbar.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="index.html" class="navbar__logo">Kisan<span>Setu</span></a>
+  <ul class="navbar__links">
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="mandi-comparison.html">Mandi Comparison</a></li>
+    <li><a href="price-trends.html">Price Trends</a></li>
+    <li><a href="schemes.html">Schemes</a></li>
+  </ul>
+  <a href="profile.html" class="navbar__cta">Profile</a>
+  <button class="navbar__menu-toggle" aria-label="Menu">&#9776;</button>
+</nav>
+
+<section class="dashboard">
+  <div class="container">
+    <div class="dashboard__welcome">
+      <p class="dashboard__greeting">AI-powered forecast</p>
+      <h1 class="dashboard__name">Price <span>Trends</span></h1>
+    </div>
+
+    <div class="filter-bar">
+      <select id="trendCropFilter">
+        <option value="wheat">Wheat / गेहूं</option>
+        <option value="onion">Onion / प्याज</option>
+        <option value="potato">Potato / आलू</option>
+      </select>
+    </div>
+
+    <div class="panel" style="margin-bottom: var(--space-md);">
+      <div class="panel__header">
+        <h2 class="panel__title">Aane wale 7 din ka forecast - Wheat</h2>
+      </div>
+      <div class="chart-bars">
+        <div class="chart-bar"><span class="chart-bar__value">2150</span><div class="chart-bar__fill" style="height: 60%;"></div><span class="chart-bar__label">Aaj</span></div>
+        <div class="chart-bar"><span class="chart-bar__value">2160</span><div class="chart-bar__fill" style="height: 64%;"></div><span class="chart-bar__label">Din 2</span></div>
+        <div class="chart-bar"><span class="chart-bar__value">2175</span><div class="chart-bar__fill" style="height: 69%;"></div><span class="chart-bar__label">Din 3</span></div>
+        <div class="chart-bar"><span class="chart-bar__value">2190</span><div class="chart-bar__fill" style="height: 74%;"></div><span class="chart-bar__label">Din 4</span></div>
+        <div class="chart-bar"><span class="chart-bar__value">2205</span><div class="chart-bar__fill" style="height: 80%;"></div><span class="chart-bar__label">Din 5</span></div>
+        <div class="chart-bar"><span class="chart-bar__value">2215</span><div class="chart-bar__fill" style="height: 85%;"></div><span class="chart-bar__label">Din 6</span></div>
+        <div class="chart-bar"><span class="chart-bar__value">2230</span><div class="chart-bar__fill" style="height: 92%;"></div><span class="chart-bar__label">Din 7</span></div>
+      </div>
+      <p class="form-hint">Forecast Prophet ML model se generate hota hai, last 90 din ke data ke base par. Confidence: ~82%</p>
+    </div>
+
+    <div class="panel">
+      <div class="panel__header">
+        <h2 class="panel__title">Insight</h2>
+      </div>
+      <div class="forecast-item">
+        <p class="forecast-item__crop">Agle 7 dinon mein <span class="forecast-item__hi">price badhne ka trend hai</span></p>
+        <span class="forecast-badge forecast-badge--up">+3.7%</span>
+      </div>
+      <p class="form-hint" style="margin-top: var(--space-sm);">Suggestion: Agar abhi bechne ki zaroorat nahi hai, toh 4-5 din wait karna fayda de sakta hai.</p>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

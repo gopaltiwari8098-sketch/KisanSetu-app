@@ -218,3 +218,185 @@ a { color: inherit; }
 @media (max-width: 600px) {
   .hero__form { flex-direction: column; }
 }
+/* ---------- Filter bar ---------- */
+.filter-bar {
+  display: flex;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.filter-bar select {
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  transition: border-color 0.2s ease;
+}
+
+.filter-bar select:focus-visible {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+/* ---------- Mandi comparison grid ---------- */
+.mandi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-md);
+}
+
+.mandi-card {
+  position: relative;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-md);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mandi-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--color-accent);
+  box-shadow: 0 8px 20px rgba(28, 36, 25, 0.12);
+}
+
+.mandi-card--best { border-color: var(--color-success); }
+
+.mandi-card__badge {
+  position: absolute;
+  top: -10px;
+  right: var(--space-md);
+  background: var(--color-success);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+}
+
+.mandi-card__name {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--color-primary-dark);
+  margin-bottom: 0.2rem;
+}
+
+.mandi-card__distance {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-sm);
+}
+
+.mandi-card__price {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-primary-dark);
+}
+
+.mandi-card__trend {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  margin-top: 0.3rem;
+}
+
+/* ---------- Bar chart (price trends) ---------- */
+.chart-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-sm);
+  height: 180px;
+  padding: var(--space-sm) 0;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: var(--space-sm);
+}
+
+.chart-bar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+}
+
+.chart-bar__fill {
+  width: 60%;
+  background: var(--color-primary);
+  border-radius: 6px 6px 0 0;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.chart-bar:hover .chart-bar__fill {
+  background: var(--color-accent);
+  transform: scaleX(1.15);
+}
+
+.chart-bar__value {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.3rem;
+}
+
+.chart-bar__label {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-top: 0.4rem;
+}
+
+/* ---------- Alerts ---------- */
+.alert-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.alert-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-sm) var(--space-md);
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  transition: border-color 0.2s ease;
+}
+
+.alert-item:hover { border-color: var(--color-accent); }
+
+.alert-item__crop { font-weight: 600; }
+.alert-item__hi { color: var(--color-text-muted); font-size: 0.78rem; }
+.alert-item__condition { font-family: var(--font-mono); font-size: 0.85rem; color: var(--color-text-muted); }
+
+.alert-item__actions { display: flex; align-items: center; gap: var(--space-sm); }
+
+.badge-status {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+}
+
+.badge-status--active { background: rgba(46, 125, 79, 0.12); color: var(--color-success); }
+.badge-status--triggered { background: rgba(224, 134, 58, 0.15); color: var(--color-accent-dark); }
+
+.alert-item__delete {
+  background: none;
+  border: none;
+  color: var(--color-danger);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.alert-item__delete:hover { transform: scale(1.25); }

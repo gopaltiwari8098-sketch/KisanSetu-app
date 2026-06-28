@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alerts - KisanSetu</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%BE%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/navbar.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/dashboard.css">
+<link rel="stylesheet" href="css/forms.css">
+<link rel="stylesheet" href="css/profile.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="index.html" class="navbar__logo">Kisan<span>Setu</span></a>
+  <ul class="navbar__links">
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="mandi-comparison.html">Mandi Comparison</a></li>
+    <li><a href="price-trends.html">Price Trends</a></li>
+    <li><a href="schemes.html">Schemes</a></li>
+  </ul>
+  <a href="profile.html" class="navbar__cta">Profile</a>
+  <button class="navbar__menu-toggle" aria-label="Menu">&#9776;</button>
+</nav>
+
+<section class="dashboard">
+  <div class="container">
+    <div class="dashboard__welcome">
+      <p class="dashboard__greeting">Price alerts manage karein</p>
+      <h1 class="dashboard__name">Aapke <span>Alerts</span></h1>
+    </div>
+
+    <div class="panel" style="margin-bottom: var(--space-md);">
+      <div class="panel__header">
+        <h2 class="panel__title">Naya alert banaye</h2>
+      </div>
+      <form id="newAlertForm" novalidate>
+        <div class="form-group--row">
+          <div class="form-group">
+            <label for="alertCrop">Fasal</label>
+            <select id="alertCrop">
+              <option value="wheat">Wheat / गेहूं</option>
+              <option value="onion">Onion / प्याज</option>
+              <option value="potato">Potato / आलू</option>
+              <option value="mustard">Mustard / सरसों</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="alertCondition">Condition</label>
+            <select id="alertCondition">
+              <option value="above">Price ke upar jaye</option>
+              <option value="below">Price ke neeche jaye</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="alertPrice">Target price (&#8377;/quintal)</label>
+          <input type="number" id="alertPrice" placeholder="Jaise 2200">
+        </div>
+        <button type="submit" class="btn-primary" style="width: 100%;">Alert banaye</button>
+      </form>
+    </div>
+
+    <div class="panel">
+      <div class="panel__header">
+        <h2 class="panel__title">Active alerts</h2>
+      </div>
+      <div class="alert-list" id="alertList">
+        <div class="alert-item">
+          <div>
+            <p class="alert-item__crop">Wheat <span class="alert-item__hi">गेहूं</span></p>
+            <p class="alert-item__condition">Jab price &#8377;2200/q se upar jaye</p>
+          </div>
+          <div class="alert-item__actions">
+            <span class="badge-status badge-status--active">Active</span>
+            <button class="alert-item__delete" aria-label="Delete">&times;</button>
+          </div>
+        </div>
+        <div class="alert-item">
+          <div>
+            <p class="alert-item__crop">Onion <span class="alert-item__hi">प्याज</span></p>
+            <p class="alert-item__condition">Jab price &#8377;1700/q se neeche jaye</p>
+          </div>
+          <div class="alert-item__actions">
+            <span class="badge-status badge-status--triggered">Triggered</span>
+            <button class="alert-item__delete" aria-label="Delete">&times;</button>
+          </div>
+        </div>
+        <div class="alert-item">
+          <div>
+            <p class="alert-item__crop">Mustard <span class="alert-item__hi">सरसों</span></p>
+            <p class="alert-item__condition">Jab price &#8377;5500/q se upar jaye</p>
+          </div>
+          <div class="alert-item__actions">
+            <span class="badge-status badge-status--active">Active</span>
+            <button class="alert-item__delete" aria-label="Delete">&times;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.getElementById('newAlertForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const crop = document.getElementById('alertCrop');
+    const condition = document.getElementById('alertCondition');
+    const price = document.getElementById('alertPrice').value;
+
+    if (!price) return;
+
+    const conditionText = condition.value === 'above'
+      ? `Jab price ₹${price}/q se upar jaye`
+      : `Jab price ₹${price}/q se neeche jaye`;
+
+    const item = document.createElement('div');
+    item.className = 'alert-item';
+    item.innerHTML = `
+      <div>
+        <p class="alert-item__crop">${crop.options[crop.selectedIndex].text}</p>
+        <p class="alert-item__condition">${conditionText}</p>
+      </div>
+      <div class="alert-item__actions">
+        <span class="badge-status badge-status--active">Active</span>
+        <button class="alert-item__delete" aria-label="Delete">&times;</button>
+      </div>`;
+    document.getElementById('alertList').appendChild(item);
+    document.getElementById('alertPrice').value = '';
+  });
+
+  document.getElementById('alertList').addEventListener('click', function (e) {
+    if (e.target.classList.contains('alert-item__delete')) {
+      e.target.closest('.alert-item').remove();
+    }
+  });
+</script>
+
+</body>
+</html>

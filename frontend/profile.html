@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile - KisanSetu</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%BE%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/navbar.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/forms.css">
+<link rel="stylesheet" href="css/profile.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="index.html" class="navbar__logo">Kisan<span>Setu</span></a>
+  <ul class="navbar__links">
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="mandi-comparison.html">Mandi Comparison</a></li>
+    <li><a href="price-trends.html">Price Trends</a></li>
+    <li><a href="schemes.html">Schemes</a></li>
+  </ul>
+  <a href="profile.html" class="navbar__cta">Profile</a>
+  <button class="navbar__menu-toggle" aria-label="Menu">&#9776;</button>
+</nav>
+
+<section class="profile-page">
+  <div class="container">
+
+    <div class="profile-header">
+      <div class="profile-avatar" id="avatarInitial">K</div>
+      <div>
+        <p class="profile-header__name" id="profileName">Kisan Tiwari</p>
+        <p class="profile-header__meta" id="profileMeta">Mathura, Uttar Pradesh &middot; Member since June 2026</p>
+      </div>
+    </div>
+
+    <div class="profile-grid">
+
+      <div class="profile-panel">
+        <h2 class="profile-panel__title">Personal details</h2>
+        <form id="profileForm" novalidate>
+          <div class="form-group">
+            <label for="fullName">Pura naam</label>
+            <input type="text" id="fullName" name="fullName" value="Kisan Tiwari">
+          </div>
+          <div class="form-group">
+            <label for="profileEmail">Email</label>
+            <input type="email" id="profileEmail" name="email" value="kisan@example.com">
+          </div>
+          <div class="form-group">
+            <label for="profilePhone">Phone number</label>
+            <input type="tel" id="profilePhone" name="phone" value="9876543210">
+          </div>
+          <div class="form-group">
+            <label for="profileState">State</label>
+            <select id="profileState" name="state">
+              <option value="UP" selected>Uttar Pradesh</option>
+              <option value="MP">Madhya Pradesh</option>
+              <option value="Punjab">Punjab</option>
+              <option value="Haryana">Haryana</option>
+              <option value="Rajasthan">Rajasthan</option>
+              <option value="Bihar">Bihar</option>
+              <option value="Maharashtra">Maharashtra</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </form>
+      </div>
+
+      <div class="profile-panel">
+        <h2 class="profile-panel__title">Tracked fasal</h2>
+        <div class="crop-chips" id="cropChips">
+          <span class="crop-chip">Wheat / गेहूं <button class="crop-chip__remove" aria-label="Remove">&times;</button></span>
+          <span class="crop-chip">Onion / प्याज <button class="crop-chip__remove" aria-label="Remove">&times;</button></span>
+          <span class="crop-chip">Mustard / सरसों <button class="crop-chip__remove" aria-label="Remove">&times;</button></span>
+          <span class="crop-chip">Potato / आलू <button class="crop-chip__remove" aria-label="Remove">&times;</button></span>
+        </div>
+        <div class="crop-add">
+          <select id="newCropSelect">
+            <option value="">Naya fasal jode</option>
+            <option value="Tomato">Tomato / टमाटर</option>
+            <option value="Soybean">Soybean / सोयाबीन</option>
+            <option value="Gram">Gram / चना</option>
+            <option value="Cotton">Cotton / कपास</option>
+            <option value="Rice">Rice / चावल</option>
+          </select>
+          <button id="addCropBtn" type="button">Jode</button>
+        </div>
+
+        <h2 class="profile-panel__title" style="margin-top: var(--space-md);">Alert preferences</h2>
+        <div class="toggle-row">
+          <div>
+            <p class="toggle-row__label">Price drop alerts</p>
+            <p class="toggle-row__hint">Jab tracked fasal ka price gire</p>
+          </div>
+          <label class="switch">
+            <input type="checkbox" checked>
+            <span class="switch__slider"></span>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <p class="toggle-row__label">Price rise alerts</p>
+            <p class="toggle-row__hint">Jab tracked fasal ka price badhe</p>
+          </div>
+          <label class="switch">
+            <input type="checkbox" checked>
+            <span class="switch__slider"></span>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <p class="toggle-row__label">Weekly forecast email</p>
+            <p class="toggle-row__hint">Har hafte AI forecast email pe</p>
+          </div>
+          <label class="switch">
+            <input type="checkbox">
+            <span class="switch__slider"></span>
+          </label>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="profile-save-bar">
+      <button class="btn-outline" id="logoutBtn">Logout</button>
+      <button class="btn-primary" id="saveProfileBtn">Changes save karein</button>
+    </div>
+
+  </div>
+</section>
+
+<script src="js/utils/tokenStorage.js"></script>
+<script>
+  document.getElementById('addCropBtn').addEventListener('click', function () {
+    const select = document.getElementById('newCropSelect');
+    const value = select.value;
+    if (!value) return;
+
+    const chip = document.createElement('span');
+    chip.className = 'crop-chip';
+    chip.innerHTML = `${select.options[select.selectedIndex].text} <button class="crop-chip__remove" aria-label="Remove">&times;</button>`;
+    document.getElementById('cropChips').appendChild(chip);
+    select.value = '';
+  });
+
+  document.getElementById('cropChips').addEventListener('click', function (e) {
+    if (e.target.classList.contains('crop-chip__remove')) {
+      e.target.closest('.crop-chip').remove();
+    }
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', function () {
+    clearToken();
+    window.location.href = 'login.html';
+  });
+
+  document.getElementById('saveProfileBtn').addEventListener('click', function () {
+    // TODO: backend ready hone par yahan PUT /api/farmer/profile call karein
+    alert('Profile save ho gaya! (abhi sirf demo hai, backend connect hone par real save hoga)');
+  });
+</script>
+
+</body>
+</html>

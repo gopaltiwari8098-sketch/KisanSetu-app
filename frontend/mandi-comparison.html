@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mandi Comparison - KisanSetu</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%BE%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/navbar.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="index.html" class="navbar__logo">Kisan<span>Setu</span></a>
+  <ul class="navbar__links">
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="mandi-comparison.html">Mandi Comparison</a></li>
+    <li><a href="price-trends.html">Price Trends</a></li>
+    <li><a href="schemes.html">Schemes</a></li>
+  </ul>
+  <a href="profile.html" class="navbar__cta">Profile</a>
+  <button class="navbar__menu-toggle" aria-label="Menu">&#9776;</button>
+</nav>
+
+<section class="dashboard">
+  <div class="container">
+    <div class="dashboard__welcome">
+      <p class="dashboard__greeting">Mandi rates compare karein</p>
+      <h1 class="dashboard__name">Mandi <span>Comparison</span></h1>
+    </div>
+
+    <div class="filter-bar">
+      <select id="cropFilter">
+        <option value="wheat">Wheat / गेहूं</option>
+        <option value="onion">Onion / प्याज</option>
+        <option value="potato">Potato / आलू</option>
+        <option value="mustard">Mustard / सरसों</option>
+      </select>
+      <select id="sortFilter">
+        <option value="price">Sort: Highest price</option>
+        <option value="distance">Sort: Nearest first</option>
+      </select>
+    </div>
+
+    <div class="mandi-grid" id="mandiGrid">
+      <div class="mandi-card mandi-card--best">
+        <span class="mandi-card__badge">Best price</span>
+        <p class="mandi-card__name">Meerut Mandi</p>
+        <p class="mandi-card__distance">12 km door</p>
+        <p class="mandi-card__price">&#8377;2180/q</p>
+        <p class="mandi-card__trend" style="color: var(--color-success);">&#9650; 2.3% aaj</p>
+      </div>
+      <div class="mandi-card">
+        <p class="mandi-card__name">Muzaffarnagar Mandi</p>
+        <p class="mandi-card__distance">28 km door</p>
+        <p class="mandi-card__price">&#8377;2150/q</p>
+        <p class="mandi-card__trend" style="color: var(--color-success);">&#9650; 1.1% aaj</p>
+      </div>
+      <div class="mandi-card">
+        <p class="mandi-card__name">Mathura Mandi</p>
+        <p class="mandi-card__distance">35 km door</p>
+        <p class="mandi-card__price">&#8377;2120/q</p>
+        <p class="mandi-card__trend" style="color: var(--color-danger);">&#9660; 0.4% aaj</p>
+      </div>
+      <div class="mandi-card">
+        <p class="mandi-card__name">Bulandshahr Mandi</p>
+        <p class="mandi-card__distance">41 km door</p>
+        <p class="mandi-card__price">&#8377;2095/q</p>
+        <p class="mandi-card__trend" style="color: var(--color-danger);">&#9660; 0.9% aaj</p>
+      </div>
+      <div class="mandi-card">
+        <p class="mandi-card__name">Agra Mandi</p>
+        <p class="mandi-card__distance">58 km door</p>
+        <p class="mandi-card__price">&#8377;2075/q</p>
+        <p class="mandi-card__trend" style="color: var(--color-success);">&#9650; 0.6% aaj</p>
+      </div>
+      <div class="mandi-card">
+        <p class="mandi-card__name">Hapur Mandi</p>
+        <p class="mandi-card__distance">63 km door</p>
+        <p class="mandi-card__price">&#8377;2050/q</p>
+        <p class="mandi-card__trend" style="color: var(--color-danger);">&#9660; 1.5% aaj</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

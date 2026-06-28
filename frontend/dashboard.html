@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard - KisanSetu</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%BE%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/navbar.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="index.html" class="navbar__logo">Kisan<span>Setu</span></a>
+  <ul class="navbar__links">
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="mandi-comparison.html">Mandi Comparison</a></li>
+    <li><a href="price-trends.html">Price Trends</a></li>
+    <li><a href="schemes.html">Schemes</a></li>
+  </ul>
+  <a href="profile.html" class="navbar__cta">Profile</a>
+  <button class="navbar__menu-toggle" aria-label="Menu">&#9776;</button>
+</nav>
+
+<section class="dashboard">
+  <div class="container">
+
+    <div class="dashboard__welcome">
+      <p class="dashboard__greeting" id="todayDate"></p>
+      <h1 class="dashboard__name">Namaste, <span id="farmerName">Kisan</span></h1>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <p class="stat-card__label">Aaj ka best price</p>
+        <p class="stat-card__value">&#8377;2150<span style="font-size:0.9rem;">/q</span></p>
+        <p class="stat-card__sub">Wheat &middot; Meerut Mandi</p>
+      </div>
+      <div class="stat-card">
+        <p class="stat-card__label">Nearby mandis</p>
+        <p class="stat-card__value accent">7</p>
+        <p class="stat-card__sub">25 km radius mein</p>
+      </div>
+      <div class="stat-card">
+        <p class="stat-card__label">Active alerts</p>
+        <p class="stat-card__value accent">3</p>
+        <p class="stat-card__sub">Price target ke close</p>
+      </div>
+      <div class="stat-card">
+        <p class="stat-card__label">Tracked crops</p>
+        <p class="stat-card__value">4</p>
+        <p class="stat-card__sub">Wheat, Onion, Mustard, Potato</p>
+      </div>
+    </div>
+
+    <div class="dashboard__grid">
+      <div class="panel">
+        <div class="panel__header">
+          <h2 class="panel__title">Aapki tracked fasal ke rates</h2>
+          <a href="mandi-comparison.html" class="panel__link">Sab mandis dekhein &rarr;</a>
+        </div>
+        <table class="price-table">
+          <thead>
+            <tr>
+              <th>Fasal</th>
+              <th>Mandi</th>
+              <th>Rate</th>
+              <th>Trend</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="crop-name">Wheat</span><br><span class="crop-hi">गेहूं</span></td>
+              <td>Meerut</td>
+              <td>&#8377;2150/q</td>
+              <td class="trend-up">&#9650; 2.1%</td>
+            </tr>
+            <tr>
+              <td><span class="crop-name">Onion</span><br><span class="crop-hi">प्याज</span></td>
+              <td>Agra</td>
+              <td>&#8377;1800/q</td>
+              <td class="trend-down">&#9660; 1.4%</td>
+            </tr>
+            <tr>
+              <td><span class="crop-name">Mustard</span><br><span class="crop-hi">सरसों</span></td>
+              <td>Mathura</td>
+              <td>&#8377;5400/q</td>
+              <td class="trend-down">&#9660; 0.8%</td>
+            </tr>
+            <tr>
+              <td><span class="crop-name">Potato</span><br><span class="crop-hi">आलू</span></td>
+              <td>Meerut</td>
+              <td>&#8377;950/q</td>
+              <td class="trend-up">&#9650; 3.5%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel">
+        <div class="panel__header">
+          <h2 class="panel__title">AI Forecast</h2>
+          <a href="price-trends.html" class="panel__link">Detail &rarr;</a>
+        </div>
+        <div class="forecast-item">
+          <div>
+            <p class="forecast-item__crop">Wheat <span class="forecast-item__hi">गेहूं</span></p>
+          </div>
+          <span class="forecast-badge forecast-badge--up">+4% in 7 din</span>
+        </div>
+        <div class="forecast-item">
+          <div>
+            <p class="forecast-item__crop">Onion <span class="forecast-item__hi">प्याज</span></p>
+          </div>
+          <span class="forecast-badge forecast-badge--down">-2% in 7 din</span>
+        </div>
+        <div class="forecast-item">
+          <div>
+            <p class="forecast-item__crop">Mustard <span class="forecast-item__hi">सरसों</span></p>
+          </div>
+          <span class="forecast-badge forecast-badge--up">+1.5% in 7 din</span>
+        </div>
+        <div class="forecast-item">
+          <div>
+            <p class="forecast-item__crop">Potato <span class="forecast-item__hi">आलू</span></p>
+          </div>
+          <span class="forecast-badge forecast-badge--up">+6% in 7 din</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-bottom: var(--space-lg);">
+      <div class="panel__header">
+        <h2 class="panel__title">Quick access</h2>
+      </div>
+      <div class="quicklinks-grid">
+        <a href="mandi-comparison.html" class="quicklink-card">
+          <span class="quicklink-card__icon">&#128202;</span>
+          <p class="quicklink-card__title">Mandi Comparison</p>
+          <p class="quicklink-card__text">Sabhi nearby mandi rates compare karein</p>
+        </a>
+        <a href="price-trends.html" class="quicklink-card">
+          <span class="quicklink-card__icon">&#129302;</span>
+          <p class="quicklink-card__title">Price Trends</p>
+          <p class="quicklink-card__text">AI forecast aur historical trends dekhein</p>
+        </a>
+        <a href="schemes.html" class="quicklink-card">
+          <span class="quicklink-card__icon">&#127894;</span>
+          <p class="quicklink-card__title">Govt Schemes</p>
+          <p class="quicklink-card__text">Relevant sarkari yojanaye dekhein</p>
+        </a>
+        <a href="alerts.html" class="quicklink-card">
+          <span class="quicklink-card__icon">&#128276;</span>
+          <p class="quicklink-card__title">Alerts</p>
+          <p class="quicklink-card__text">Apne price alerts manage karein</p>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<script>
+  const dateEl = document.getElementById('todayDate');
+  if (dateEl) {
+    const today = new Date();
+    dateEl.textContent = today.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  }
+</script>
+
+</body>
+</html>
