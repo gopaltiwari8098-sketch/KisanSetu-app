@@ -32,10 +32,10 @@
   <div class="container">
 
     <div class="profile-header">
-      <div class="profile-avatar" id="avatarInitial">K</div>
+      <div class="profile-avatar" id="avatarInitial">?</div>
       <div>
-        <p class="profile-header__name" id="profileName">Kisan Tiwari</p>
-        <p class="profile-header__meta" id="profileMeta">Mathura, Uttar Pradesh &middot; Member since June 2026</p>
+        <p class="profile-header__name" id="profileName">Naam load ho raha hai...</p>
+        <p class="profile-header__meta" id="profileMeta">Location update ho rahi hai...</p>
       </div>
     </div>
 
@@ -46,27 +46,56 @@
         <form id="profileForm" novalidate>
           <div class="form-group">
             <label for="fullName">Pura naam</label>
-            <input type="text" id="fullName" name="fullName" value="Kisan Tiwari">
+            <input type="text" id="fullName" name="fullName" placeholder="Apna naam likhein">
           </div>
           <div class="form-group">
             <label for="profileEmail">Email</label>
-            <input type="email" id="profileEmail" name="email" value="kisan@example.com">
+            <input type="email" id="profileEmail" name="email" placeholder="aapka@email.com">
           </div>
           <div class="form-group">
             <label for="profilePhone">Phone number</label>
-            <input type="tel" id="profilePhone" name="phone" value="9876543210">
+            <input type="tel" id="profilePhone" name="phone" placeholder="10 digit mobile number">
           </div>
           <div class="form-group">
             <label for="profileState">State</label>
             <select id="profileState" name="state">
-              <option value="UP" selected>Uttar Pradesh</option>
-              <option value="MP">Madhya Pradesh</option>
-              <option value="Punjab">Punjab</option>
-              <option value="Haryana">Haryana</option>
-              <option value="Rajasthan">Rajasthan</option>
+              <option value="">State chunein</option>
+              <option value="Andhra Pradesh">Andhra Pradesh</option>
+              <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+              <option value="Assam">Assam</option>
               <option value="Bihar">Bihar</option>
+              <option value="Chhattisgarh">Chhattisgarh</option>
+              <option value="Goa">Goa</option>
+              <option value="Gujarat">Gujarat</option>
+              <option value="Haryana">Haryana</option>
+              <option value="Himachal Pradesh">Himachal Pradesh</option>
+              <option value="Jharkhand">Jharkhand</option>
+              <option value="Karnataka">Karnataka</option>
+              <option value="Kerala">Kerala</option>
+              <option value="Madhya Pradesh">Madhya Pradesh</option>
               <option value="Maharashtra">Maharashtra</option>
-              <option value="Other">Other</option>
+              <option value="Manipur">Manipur</option>
+              <option value="Meghalaya">Meghalaya</option>
+              <option value="Mizoram">Mizoram</option>
+              <option value="Nagaland">Nagaland</option>
+              <option value="Odisha">Odisha</option>
+              <option value="Punjab">Punjab</option>
+              <option value="Rajasthan">Rajasthan</option>
+              <option value="Sikkim">Sikkim</option>
+              <option value="Tamil Nadu">Tamil Nadu</option>
+              <option value="Telangana">Telangana</option>
+              <option value="Tripura">Tripura</option>
+              <option value="Uttar Pradesh">Uttar Pradesh</option>
+              <option value="Uttarakhand">Uttarakhand</option>
+              <option value="West Bengal">West Bengal</option>
+              <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
+              <option value="Chandigarh">Chandigarh</option>
+              <option value="Dadra and Nagar Haveli and Daman and Diu">Dadra and Nagar Haveli and Daman and Diu</option>
+              <option value="Delhi">Delhi (NCT)</option>
+              <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+              <option value="Ladakh">Ladakh</option>
+              <option value="Lakshadweep">Lakshadweep</option>
+              <option value="Puducherry">Puducherry</option>
             </select>
           </div>
         </form>
@@ -75,20 +104,49 @@
       <div class="profile-panel">
         <h2 class="profile-panel__title">Tracked fasal</h2>
         <div class="crop-chips" id="cropChips">
-          <span class="crop-chip">Wheat / गेहूं <button class="crop-chip__remove" aria-label="Remove">&times;</button></span>
-          <span class="crop-chip">Onion / प्याज <button class="crop-chip__remove" aria-label="Remove">&times;</button></span>
-          <span class="crop-chip">Mustard / सरसों <button class="crop-chip__remove" aria-label="Remove">&times;</button></span>
-          <span class="crop-chip">Potato / आलू <button class="crop-chip__remove" aria-label="Remove">&times;</button></span>
+          <p class="form-hint" id="noCropsHint">Abhi koi fasal track nahi ki gayi. Neeche search karke add karein.</p>
         </div>
         <div class="crop-add">
-          <select id="newCropSelect">
-            <option value="">Naya fasal jode</option>
-            <option value="Tomato">Tomato / टमाटर</option>
-            <option value="Soybean">Soybean / सोयाबीन</option>
-            <option value="Gram">Gram / चना</option>
-            <option value="Cotton">Cotton / कपास</option>
-            <option value="Rice">Rice / चावल</option>
-          </select>
+          <input type="text" id="newCropInput" list="cropOptions" placeholder="Fasal search karein (jaise: Wheat, गेहूं)" autocomplete="off">
+          <datalist id="cropOptions">
+            <option value="Wheat / गेहूं">
+            <option value="Rice / चावल">
+            <option value="Maize / मक्का">
+            <option value="Bajra / बाजरा">
+            <option value="Jowar / ज्वार">
+            <option value="Barley / जौ">
+            <option value="Onion / प्याज">
+            <option value="Potato / आलू">
+            <option value="Tomato / टमाटर">
+            <option value="Brinjal / बैंगन">
+            <option value="Cauliflower / फूलगोभी">
+            <option value="Cabbage / पत्तागोभी">
+            <option value="Lady Finger / भिंडी">
+            <option value="Green Chilli / हरी मिर्च">
+            <option value="Garlic / लहसुन">
+            <option value="Ginger / अदरक">
+            <option value="Carrot / गाजर">
+            <option value="Peas / मटर">
+            <option value="Cucumber / खीरा">
+            <option value="Pumpkin / कद्दू">
+            <option value="Mustard / सरसों">
+            <option value="Soybean / सोयाबीन">
+            <option value="Groundnut / मूंगफली">
+            <option value="Sunflower / सूरजमुखी">
+            <option value="Sesame / तिल">
+            <option value="Gram / चना">
+            <option value="Arhar Dal / अरहर दाल">
+            <option value="Moong Dal / मूंग दाल">
+            <option value="Urad Dal / उड़द दाल">
+            <option value="Masoor Dal / मसूर दाल">
+            <option value="Cotton / कपास">
+            <option value="Sugarcane / गन्ना">
+            <option value="Jute / जूट">
+            <option value="Banana / केला">
+            <option value="Mango / आम">
+            <option value="Papaya / पपीता">
+            <option value="Guava / अमरूद">
+          </datalist>
           <button id="addCropBtn" type="button">Jode</button>
         </div>
 
@@ -137,9 +195,9 @@
 
 <script src="js/config.js"></script>
 <script src="js/utils/tokenStorage.js"></script>
+<script src="js/utils/formatters.js"></script>
 <script src="js/api/farmerApi.js"></script>
 <script src="js/components/renderNavbar.js"></script>
 <script src="js/pages/profile.js"></script>
-<script src="js/utils/formatters.js"></script>
 </body>
 </html>
