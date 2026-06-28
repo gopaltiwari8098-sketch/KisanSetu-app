@@ -164,13 +164,11 @@
   </div>
 </section>
 
-<script>
-  const dateEl = document.getElementById('todayDate');
-  if (dateEl) {
-    const today = new Date();
-    dateEl.textContent = today.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-  }
-</script>
-
+<script src="js/config.js"></script>
+<script src="js/utils/tokenStorage.js"></script>
+<script src="js/utils/formatters.js"></script>
+<script src="js/api/priceApi.js"></script>
+<script src="js/components/renderNavbar.js"></script>
+<script src="js/pages/dashboard.js"></script>
 </body>
 </html>

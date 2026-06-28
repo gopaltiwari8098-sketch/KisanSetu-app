@@ -134,36 +134,10 @@
   </div>
 </section>
 
+<script src="js/config.js"></script>
 <script src="js/utils/tokenStorage.js"></script>
-<script>
-  document.getElementById('addCropBtn').addEventListener('click', function () {
-    const select = document.getElementById('newCropSelect');
-    const value = select.value;
-    if (!value) return;
-
-    const chip = document.createElement('span');
-    chip.className = 'crop-chip';
-    chip.innerHTML = `${select.options[select.selectedIndex].text} <button class="crop-chip__remove" aria-label="Remove">&times;</button>`;
-    document.getElementById('cropChips').appendChild(chip);
-    select.value = '';
-  });
-
-  document.getElementById('cropChips').addEventListener('click', function (e) {
-    if (e.target.classList.contains('crop-chip__remove')) {
-      e.target.closest('.crop-chip').remove();
-    }
-  });
-
-  document.getElementById('logoutBtn').addEventListener('click', function () {
-    clearToken();
-    window.location.href = 'login.html';
-  });
-
-  document.getElementById('saveProfileBtn').addEventListener('click', function () {
-    // TODO: backend ready hone par yahan PUT /api/farmer/profile call karein
-    alert('Profile save ho gaya! (abhi sirf demo hai, backend connect hone par real save hoga)');
-  });
-</script>
-
+<script src="js/api/farmerApi.js"></script>
+<script src="js/components/renderNavbar.js"></script>
+<script src="js/pages/profile.js"></script>
 </body>
 </html>

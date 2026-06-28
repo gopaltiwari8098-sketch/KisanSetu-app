@@ -106,40 +106,10 @@
   </div>
 </section>
 
-<script>
-  document.getElementById('newAlertForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-    const crop = document.getElementById('alertCrop');
-    const condition = document.getElementById('alertCondition');
-    const price = document.getElementById('alertPrice').value;
-
-    if (!price) return;
-
-    const conditionText = condition.value === 'above'
-      ? `Jab price ₹${price}/q se upar jaye`
-      : `Jab price ₹${price}/q se neeche jaye`;
-
-    const item = document.createElement('div');
-    item.className = 'alert-item';
-    item.innerHTML = `
-      <div>
-        <p class="alert-item__crop">${crop.options[crop.selectedIndex].text}</p>
-        <p class="alert-item__condition">${conditionText}</p>
-      </div>
-      <div class="alert-item__actions">
-        <span class="badge-status badge-status--active">Active</span>
-        <button class="alert-item__delete" aria-label="Delete">&times;</button>
-      </div>`;
-    document.getElementById('alertList').appendChild(item);
-    document.getElementById('alertPrice').value = '';
-  });
-
-  document.getElementById('alertList').addEventListener('click', function (e) {
-    if (e.target.classList.contains('alert-item__delete')) {
-      e.target.closest('.alert-item').remove();
-    }
-  });
-</script>
-
+<script src="js/config.js"></script>
+<script src="js/utils/tokenStorage.js"></script>
+<script src="js/api/alertApi.js"></script>
+<script src="js/components/renderNavbar.js"></script>
+<script src="js/pages/alerts.js"></script>
 </body>
 </html>
