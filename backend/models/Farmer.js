@@ -35,9 +35,9 @@ const Farmer = {
       [fullName, phone, state, id]
     );
     return result.rows[0];
-  }
-};
-async setVerificationToken(email, token) {
+  },
+
+  async setVerificationToken(email, token) {
     await pool.query(
       'UPDATE farmers SET verification_token = $1 WHERE email = $2',
       [token, email]
@@ -53,5 +53,6 @@ async setVerificationToken(email, token) {
     );
     return result.rows[0];
   }
-  
+};
+
 module.exports = Farmer;
