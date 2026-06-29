@@ -5,10 +5,24 @@ function highlightActiveNavLink() {
   links.forEach((link) => {
     const linkPage = link.getAttribute('href');
     if (linkPage === currentPage) {
-      link.style.borderBottomColor = 'var(--color-accent)';
-      link.style.color = 'var(--color-accent-dark)';
+      link.classList.add('active-link');
     }
   });
 }
 
-document.addEventListener('DOMContentLoaded', highlightActiveNavLink);
+function freeEntranceAnimations() {
+  const animatedEls = document.querySelectorAll(
+    '.features__grid > *, .stats-grid > *, .mandi-grid > *, .quicklinks-grid > *'
+  );
+
+  animatedEls.forEach((el) => {
+    el.addEventListener('animationend', function () {
+      this.style.animation = 'none';
+    });
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  highlightActiveNavLink();
+  freeEntranceAnimations();
+});

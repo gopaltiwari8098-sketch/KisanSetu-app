@@ -125,5 +125,18 @@
 <script src="js/config.js"></script>
 <script src="js/utils/tokenStorage.js"></script>
 <script src="js/components/renderNavbar.js"></script>
+<script>
+  const heroForm = document.querySelector('.hero__form');
+  if (heroForm) {
+    heroForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const query = this.querySelector('input').value.trim();
+      if (!query) return;
+      // Abhi backend nahi hai, isliye seedha mandi-comparison page pe le jaate hain
+      // Backend ban jaane par yahan query ko search params ke through bhejenge
+      window.location.href = `mandi-comparison.html?search=${encodeURIComponent(query)}`;
+    });
+  }
+</script>
 </body>
 </html>
