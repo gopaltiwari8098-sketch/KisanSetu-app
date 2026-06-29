@@ -3,6 +3,22 @@ function showError(groupId, show) {
   if (group) group.classList.toggle('has-error', show);
 }
 
+function showFormMessage(message, isError = true) {
+  let msgEl = document.getElementById('formMessage');
+  if (!msgEl) {
+    msgEl = document.createElement('p');
+    msgEl.id = 'formMessage';
+    msgEl.style.marginBottom = 'var(--space-sm)';
+    msgEl.style.fontSize = '0.85rem';
+    msgEl.style.textAlign = 'center';
+    const card = document.querySelector('.auth-card');
+    const form = card.querySelector('form');
+    card.insertBefore(msgEl, form);
+  }
+  msgEl.textContent = message;
+  msgEl.style.color = isError ? 'var(--color-danger)' : 'var(--color-success)';
+}
+
 function isValidEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
@@ -30,10 +46,15 @@ if (loginForm) {
     if (!valid) return;
 
     setButtonLoading(submitBtn, true, 'Login ho raha hai...');
-    await delay(700);
-    console.log('Login submit:', { email, password });
-    // TODO: backend ready hone par yahan authApi.loginUser(email, password) call karein
+    const result = await loginUser(email, password);
     setButtonLoading(submitBtn, false);
+
+    if (result.success) {
+      showFormMessage('Login successful! Redirect ho rahe hain...', false);
+      setTimeout(() => { window.location.href = 'dashboard.html'; }, 800);
+    } else {
+      showFormMessage(result.error || 'Login fail hua, dobara try karein');
+    }
   });
 }
 
@@ -77,9 +98,14 @@ if (signupForm) {
     if (!valid) return;
 
     setButtonLoading(submitBtn, true, 'Account ban raha hai...');
-    await delay(700);
-    console.log('Signup submit:', { name, email, phone, state, password });
-    // TODO: backend ready hone par yahan authApi.signupUser(...) call karein
+    const result = await signupUser({ fullName: name, email, phone, state, password });
     setButtonLoading(submitBtn, false);
+
+    if (result.success) {
+      showFormMessage('Account ban gaya! Redirect ho rahe hain...', false);
+      setTimeout(() => { window.location.href = 'dashboard.html'; }, 800);
+    } else {
+      showFormMessage(result.error || 'Signup fail hua, dobara try karein');
+    }
   });
 }
