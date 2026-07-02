@@ -102,8 +102,8 @@ if (signupForm) {
     setButtonLoading(submitBtn, false);
 
     if (result.success) {
-      showFormMessage('Account ban gaya! Redirect ho rahe hain...', false);
-      setTimeout(() => { window.location.href = 'dashboard.html'; }, 800);
+      showFormMessage('Account ban gaya! Apna email check karein, verification link bheja gaya hai.', false);
+      signupForm.reset();
     } else {
       showFormMessage(result.error || 'Signup fail hua, dobara try karein');
     }

@@ -1,3 +1,10 @@
+const urlParams = new URLSearchParams(window.location.search);
+const googleToken = urlParams.get('token');
+if (googleToken) {
+  saveToken(googleToken);
+  // URL clean karo (token URL mein na dikhe)
+  window.history.replaceState({}, document.title, '/frontend/dashboard.html');
+}
 document.addEventListener('DOMContentLoaded', async () => {
   const dateEl = document.getElementById('todayDate');
   if (dateEl) dateEl.textContent = formatDate();

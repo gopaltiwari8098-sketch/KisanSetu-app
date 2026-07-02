@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Verify - KisanSetu</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%BE%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/navbar.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/forms.css">
+<link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="index.html" class="navbar__logo">Kisan<span>Setu</span></a>
+  <ul class="navbar__links">
+    <li><a href="index.html">Home</a></li>
+  </ul>
+  <a href="login.html" class="navbar__cta">Login</a>
+  <button class="navbar__menu-toggle" aria-label="Menu">&#9776;</button>
+</nav>
+
+<section class="auth-page">
+  <div class="auth-card" style="text-align: center;">
+    <div id="verifyIcon" style="font-size: 2.5rem; margin-bottom: var(--space-sm);">&#8987;</div>
+    <h1 class="auth-card__heading" id="verifyHeading">Verify ho raha hai...</h1>
+    <p class="auth-card__subtext" id="verifyMessage">Thoda intezaar karein, aapka email verify kiya jaa raha hai.</p>
+    <a href="login.html" class="auth-submit" id="verifyLoginBtn" style="display: none; text-decoration: none; text-align: center;">Login Karein</a>
+  </div>
+</section>
+
+<script src="js/config.js"></script>
+<script>
+  async function verifyEmailToken() {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+
+    const iconEl = document.getElementById('verifyIcon');
+    const headingEl = document.getElementById('verifyHeading');
+    const messageEl = document.getElementById('verifyMessage');
+    const loginBtn = document.getElementById('verifyLoginBtn');
+
+    if (!token) {
+      iconEl.textContent = '❌';
+      headingEl.textContent = 'Token nahi mila';
+      messageEl.textContent = 'Verification link sahi nahi hai.';
+      return;
+    }
+
+    try {
+      const res = await fetch(`${CONFIG.API_BASE_URL}/auth/verify-email?token=${token}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Verification fail hua');
+
+      iconEl.textContent = '✅';
+      headingEl.textContent = 'Email verify ho gaya!';
+      messageEl.textContent = 'Ab aap login kar sakte hain.';
+      loginBtn.style.display = 'block';
+      loginBtn.textContent = 'Login Karein';
+    } catch (err) {
+      iconEl.textContent = '❌';
+      headingEl.textContent = 'Verification fail hua';
+      messageEl.textContent = err.message || 'Ye link expire ho gaya hai ya already use ho chuka hai.';
+      loginBtn.style.display = 'block';
+      loginBtn.textContent = 'Login page pe jayein';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', verifyEmailToken);
+</script>
+</body>
+</html>
