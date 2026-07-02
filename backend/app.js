@@ -39,7 +39,8 @@ app.get('/api/db-check', async (req, res) => {
   }
 });
 
-const authRoutes = require('./routes/authRoutes');
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/farmer', require('./routes/farmerRoutes'));
+app.use('/api/price', require('./routes/priceRoutes'));
 
 module.exports = app;

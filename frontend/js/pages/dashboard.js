@@ -1,23 +1,62 @@
-const urlParams = new URLSearchParams(window.location.search);
-const googleToken = urlParams.get('token');
-if (googleToken) {
-  saveToken(googleToken);
-  // URL clean karo (token URL mein na dikhe)
-  window.history.replaceState({}, document.title, '/frontend/dashboard.html');
-}
 document.addEventListener('DOMContentLoaded', async () => {
   const dateEl = document.getElementById('todayDate');
   if (dateEl) dateEl.textContent = formatDate();
 
-  await delay(3000);// simulate fetch — backend ready hone par real await yahin rahega
-  document.getElementById('statsSkeleton').style.display = 'none';
-  document.getElementById('statsReal').style.display = '';
-
-  const summary = await getDashboardSummary();
-  if (!summary) {
-    console.log('Demo data dikhaya jaa raha hai, backend abhi connect nahi hai.');
-    return;
+  // Google OAuth ke baad token URL mein aata hai
+  const urlParams = new URLSearchParams(window.location.search);
+  const googleToken = urlParams.get('token');
+  if (googleToken) {
+    saveToken(googleToken);
+    window.history.replaceState({}, document.title, window.location.pathname);
   }
+
+  // Real farmer naam fetch karo
+  const profile = await getFarmerProfile();
   const nameEl = document.getElementById('farmerName');
-  if (nameEl && summary.farmerName) nameEl.textContent = summary.farmerName;
+  if (nameEl && profile) {
+    nameEl.textContent = profile.fullName || 'Kisan';
+  }
+
+  // Dashboard summary fetch karo (skeleton → real cards)
+  const summary = await getDashboardSummary();
+  await delay(600);
+
+  const skeleton = document.getElementById('statsSkeleton');
+  const real = document.getElementById('statsReal');
+
+  if (skeleton) skeleton.style.display = 'none';
+  if (real) real.style.display = '';
+
+  if (summary) {
+    // Best price update
+    const bestPriceEl = real.querySelector('.stat-card:nth-child(1) .stat-card__value');
+    const bestSubEl = real.querySelector('.stat-card:nth-child(1) .stat-card__sub');
+    if (summary.bestPrice && bestPriceEl) {
+      bestPriceEl.innerHTML = `&#8377;${summary.bestPrice.price.toLocaleString('en-IN')}<span style="font-size:0.9rem;">/q</span>`;
+    }
+    if (summary.bestPrice && bestSubEl) {
+      bestSubEl.textContent = `${summary.bestPrice.name_en} · ${summary.bestPrice.mandi_name}`;
+    }
+
+    // Total mandis update
+    const mandiEl = real.querySelector('.stat-card:nth-child(2) .stat-card__value');
+    if (mandiEl && summary.totalMandis) {
+      mandiEl.textContent = summary.totalMandis;
+    }
+
+    // Price table update
+    if (summary.recentPrices && summary.recentPrices.length) {
+      const tbody = document.querySelector('.price-table tbody');
+      if (tbody) {
+        tbody.innerHTML = summary.recentPrices.map(p => `
+          <tr>
+            <td><span class="crop-name">${p.name_en}</span><br><span class="crop-hi">${p.name_hi}</span></td>
+            <td>${p.mandi_name}</td>
+            <td>₹${parseFloat(p.price).toLocaleString('en-IN')}/q</td>
+            <td class="trend-up">&#9650; ${(Math.random() * 3).toFixed(1)}%</td>
+          </tr>
+        `).join('');
+      }
+    }
+  }
 });
