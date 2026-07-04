@@ -25,6 +25,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Health checks
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'KisanSetu backend chal raha hai' });
 });
@@ -39,8 +40,13 @@ app.get('/api/db-check', async (req, res) => {
   }
 });
 
+// Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/farmer', require('./routes/farmerRoutes'));
 app.use('/api/price', require('./routes/priceRoutes'));
+
+// Cron job start karo
+require('./jobs/dailyPriceSync');
+console.log('Daily price sync scheduled (roz 6 AM IST)');
 
 module.exports = app;

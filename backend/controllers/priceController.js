@@ -2,9 +2,8 @@ const pool = require('../config/db');
 
 async function getDashboardSummary(req, res) {
   try {
-    // aaj ka best price
     const bestPrice = await pool.query(`
-      SELECT p.price, c.name_en, c.name_hi, m.name as mandi_name
+      SELECT p.price, c.name_en, c.name_hi, m.name as mandi_name, m.state
       FROM prices p
       JOIN crops c ON p.crop_id = c.id
       JOIN mandis m ON p.mandi_id = m.id
@@ -13,25 +12,24 @@ async function getDashboardSummary(req, res) {
       LIMIT 1
     `);
 
-    // total mandis count
     const mandiCount = await pool.query('SELECT COUNT(*) FROM mandis');
 
-    // aaj ke prices ka summary
-    const pricesSummary = await pool.query(`
-      SELECT c.name_en, c.name_hi, m.name as mandi_name,
-             p.price, m.district
+    const recentPrices = await pool.query(`
+      SELECT DISTINCT ON (c.name_en)
+        c.name_en, c.name_hi, m.name as mandi_name,
+        p.price, m.district
       FROM prices p
       JOIN crops c ON p.crop_id = c.id
       JOIN mandis m ON p.mandi_id = m.id
       WHERE p.recorded_date = CURRENT_DATE
-      ORDER BY p.price DESC
-      LIMIT 4
+      ORDER BY c.name_en, p.price DESC
+      LIMIT 6
     `);
 
     res.json({
       bestPrice: bestPrice.rows[0] || null,
       totalMandis: parseInt(mandiCount.rows[0].count),
-      recentPrices: pricesSummary.rows
+      recentPrices: recentPrices.rows
     });
   } catch (err) {
     console.error('getDashboardSummary error:', err.message);
@@ -41,31 +39,44 @@ async function getDashboardSummary(req, res) {
 
 async function getMandiPrices(req, res) {
   try {
-    const { crop } = req.query;
+    const { crop, state } = req.query;
     if (!crop) return res.status(400).json({ message: 'Crop naam zaroori hai' });
 
-    const result = await pool.query(`
-      SELECT m.name, m.district, m.latitude, m.longitude,
-             p.price, c.name_en, c.name_hi
+    let query = `
+      SELECT m.id as mandi_id, m.name, m.district, m.state,
+             m.latitude, m.longitude, p.price,
+             c.name_en, c.name_hi
       FROM prices p
       JOIN mandis m ON p.mandi_id = m.id
       JOIN crops c ON p.crop_id = c.id
       WHERE LOWER(c.name_en) = LOWER($1)
       AND p.recorded_date = CURRENT_DATE
-      ORDER BY p.price DESC
-    `, [crop]);
+    `;
+    const params = [crop];
+
+    if (state && state !== 'all') {
+      query += ` AND LOWER(m.state) = LOWER($2)`;
+      params.push(state);
+    }
+
+    query += ` ORDER BY p.price DESC LIMIT 50`;
+
+    const result = await pool.query(query, params);
 
     if (!result.rows.length) {
-      return res.status(404).json({ message: 'Is fasal ke aaj ke rates nahi mile' });
+      return res.status(404).json({ message: 'Aaj ke rates nahi mile' });
     }
 
     const maxPrice = Math.max(...result.rows.map(r => parseFloat(r.price)));
-    const formatted = result.rows.map((row, i) => ({
+    const formatted = result.rows.map(row => ({
+      mandiId: row.mandi_id,
       name: row.name,
       district: row.district,
+      state: row.state,
       price: parseFloat(row.price),
-      distance: Math.round(10 + i * 12),
-      trend: parseFloat((Math.random() * 4 - 2).toFixed(1)),
+      latitude: row.latitude,
+      longitude: row.longitude,
+      trend: parseFloat((Math.random() * 6 - 3).toFixed(1)),
       isBest: parseFloat(row.price) === maxPrice
     }));
 
@@ -86,16 +97,17 @@ async function getPriceForecast(req, res) {
       FROM prices p
       JOIN crops c ON p.crop_id = c.id
       WHERE LOWER(c.name_en) = LOWER($1)
-      ORDER BY p.recorded_date DESC
+      AND p.recorded_date <= CURRENT_DATE
+      ORDER BY p.recorded_date DESC, p.price DESC
       LIMIT 1
     `, [crop]);
 
     const basePrice = result.rows.length ? parseFloat(result.rows[0].price) : 2000;
-
     const forecast = [];
+
     for (let i = 0; i < parseInt(days); i++) {
       const label = i === 0 ? 'Aaj' : `Din ${i + 1}`;
-      const change = basePrice * 0.005 * i;
+      const change = basePrice * 0.006 * i;
       forecast.push({
         label,
         value: Math.round(basePrice + change)
@@ -103,14 +115,14 @@ async function getPriceForecast(req, res) {
     }
 
     const lastPrice = forecast[forecast.length - 1].value;
-    const percentChange = ((lastPrice - basePrice) / basePrice * 100).toFixed(1);
+    const percentChange = parseFloat(((lastPrice - basePrice) / basePrice * 100).toFixed(1));
 
     res.json({
       crop,
       basePrice,
       forecast,
-      percentChange: parseFloat(percentChange),
-      suggestion: parseFloat(percentChange) > 0
+      percentChange,
+      suggestion: percentChange > 0
         ? `Agle ${days} dinon mein price badhne ka trend hai. Wait karna faydemand ho sakta hai.`
         : `Agle ${days} dinon mein price girne ka trend hai. Jaldi bechna consider karein.`
     });
@@ -123,13 +135,14 @@ async function getPriceForecast(req, res) {
 async function getAllPrices(req, res) {
   try {
     const result = await pool.query(`
-      SELECT c.name_en, c.name_hi, m.name as mandi_name,
-             p.price, p.recorded_date
+      SELECT DISTINCT ON (c.name_en, m.state)
+        c.name_en, c.name_hi, m.name as mandi_name,
+        m.state, p.price, p.recorded_date
       FROM prices p
       JOIN crops c ON p.crop_id = c.id
       JOIN mandis m ON p.mandi_id = m.id
       WHERE p.recorded_date = CURRENT_DATE
-      ORDER BY c.name_en, p.price DESC
+      ORDER BY c.name_en, m.state, p.price DESC
     `);
     res.json(result.rows);
   } catch (err) {
@@ -138,4 +151,31 @@ async function getAllPrices(req, res) {
   }
 }
 
-module.exports = { getDashboardSummary, getMandiPrices, getPriceForecast, getAllPrices };
+async function triggerSync(req, res) {
+  try {
+    const { triggerManualSync } = require('../jobs/dailyPriceSync');
+    const count = await triggerManualSync();
+    res.json({ message: `Sync complete. ${count} records updated.` });
+  } catch (err) {
+    res.status(500).json({ message: 'Sync fail hua: ' + err.message });
+  }
+}
+async function getCropsList(req, res) {
+  try {
+    const result = await pool.query(
+      'SELECT id, name_en, name_hi FROM crops ORDER BY name_en'
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error('getCropsList error:', err.message);
+    res.status(500).json({ message: 'Crops list fetch mein error' });
+  }
+}
+  module.exports = {
+  getDashboardSummary,
+  getMandiPrices,
+  getPriceForecast,
+  getAllPrices,
+  triggerSync,
+  getCropsList
+};
