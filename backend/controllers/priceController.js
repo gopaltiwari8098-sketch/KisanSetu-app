@@ -97,60 +97,53 @@ async function getPriceForecast(req, res) {
       FROM prices p
       JOIN crops c ON p.crop_id = c.id
       WHERE LOWER(c.name_en) = LOWER($1)
-      AND p.recorded_date <= CURRENT_DATE
-      ORDER BY p.recorded_date DESC, p.price DESC
+      AND p.recorded_date = CURRENT_DATE
+      ORDER BY p.price DESC
       LIMIT 1
     `, [crop]);
 
     const basePrice = result.rows.length ? parseFloat(result.rows[0].price) : 2000;
-    const forecast = [];
+    const daysNum = parseInt(days);
 
-    for (let i = 0; i < parseInt(days); i++) {
-      const label = i === 0 ? 'Aaj' : `Din ${i + 1}`;
-      const change = basePrice * 0.006 * i;
-      forecast.push({
-        label,
-        value: Math.round(basePrice + change)
+    // ML service try karo pehle
+    const { getPriceForecastFromML } = require('../services/mlService');
+    const mlResult = await getPriceForecastFromML(crop, basePrice, daysNum);
+
+    if (mlResult) {
+      // ML service se response mila
+      return res.json({
+        crop,
+        basePrice,
+        forecast: mlResult.forecast.map(f => ({
+          label: f.label,
+          value: f.value
+        })),
+        percentChange: mlResult.percent_change,
+        advisory: mlResult.advisory,
+        suggestion: mlResult.advisory.advice,
+        modelUsed: mlResult.model_used
       });
     }
 
-    const lastPrice = forecast[forecast.length - 1].value;
-    const percentChange = parseFloat(((lastPrice - basePrice) / basePrice * 100).toFixed(1));
+    // Fallback: JS mein hi forecast banao
+    const { exponentialWeightedForecast, getAdvisory } = require('../utils/forecastUtils');
+    const forecast = exponentialWeightedForecast(basePrice, daysNum, crop);
+    const advisory = getAdvisory(basePrice, forecast, crop);
 
     res.json({
       crop,
       basePrice,
       forecast,
-      percentChange,
-      suggestion: percentChange > 0
-        ? `Agle ${days} dinon mein price badhne ka trend hai. Wait karna faydemand ho sakta hai.`
-        : `Agle ${days} dinon mein price girne ka trend hai. Jaldi bechna consider karein.`
+      percentChange: advisory.percentChange,
+      advisory,
+      suggestion: advisory.advice,
+      modelUsed: 'JS Fallback (EWA)'
     });
   } catch (err) {
     console.error('getPriceForecast error:', err.message);
     res.status(500).json({ message: 'Forecast fetch mein error' });
   }
 }
-
-async function getAllPrices(req, res) {
-  try {
-    const result = await pool.query(`
-      SELECT DISTINCT ON (c.name_en, m.state)
-        c.name_en, c.name_hi, m.name as mandi_name,
-        m.state, p.price, p.recorded_date
-      FROM prices p
-      JOIN crops c ON p.crop_id = c.id
-      JOIN mandis m ON p.mandi_id = m.id
-      WHERE p.recorded_date = CURRENT_DATE
-      ORDER BY c.name_en, m.state, p.price DESC
-    `);
-    res.json(result.rows);
-  } catch (err) {
-    console.error('getAllPrices error:', err.message);
-    res.status(500).json({ message: 'Prices fetch mein error' });
-  }
-}
-
 async function triggerSync(req, res) {
   try {
     const { triggerManualSync } = require('../jobs/dailyPriceSync');

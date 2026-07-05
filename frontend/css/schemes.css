@@ -1,0 +1,135 @@
+.schemes-page {
+  padding: var(--space-lg) 0 var(--space-xl);
+}
+
+.schemes-header {
+  margin-bottom: var(--space-lg);
+}
+
+.schemes-header h1 {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--color-primary-dark);
+  margin-bottom: 0.4rem;
+}
+
+.schemes-header p {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+.schemes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--space-md);
+}
+
+.scheme-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.scheme-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--color-accent);
+  box-shadow: 0 8px 24px rgba(28, 36, 25, 0.13);
+}
+
+.scheme-card__header {
+  padding: var(--space-md);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+}
+
+.scheme-card__icon-wrap {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+
+.scheme-card__meta {
+  flex: 1;
+}
+
+.scheme-card__tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  margin-bottom: 0.3rem;
+}
+
+.scheme-card__title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--color-primary-dark);
+  margin-bottom: 0.1rem;
+}
+
+.scheme-card__subtitle {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.scheme-card__body {
+  padding: 0 var(--space-md) var(--space-sm);
+}
+
+.scheme-card__desc {
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  margin-bottom: var(--space-sm);
+}
+
+.scheme-card__benefit {
+  background: var(--color-bg);
+  border-left: 3px solid var(--color-accent);
+  border-radius: 0 6px 6px 0;
+  padding: 0.5rem 0.8rem;
+  font-size: 0.82rem;
+  color: var(--color-text);
+  margin-bottom: var(--space-sm);
+}
+
+.scheme-card__benefit strong {
+  color: var(--color-accent-dark);
+}
+
+.scheme-card__footer {
+  padding: var(--space-sm) var(--space-md) var(--space-md);
+}
+
+.scheme-apply-btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  background: var(--color-primary);
+  color: #fff;
+  padding: 0.7rem;
+  border-radius: var(--radius);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.scheme-apply-btn:hover {
+  background: var(--color-accent);
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(224, 134, 58, 0.3);
+}

@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="css/variables.css">
 <link rel="stylesheet" href="css/navbar.css">
 <link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="css/profile.css">
+<link rel="stylesheet" href="css/schemes.css">
 <link rel="stylesheet" href="css/animations.css">
 </head>
 <body>
@@ -27,51 +27,175 @@
   <button class="navbar__menu-toggle" aria-label="Menu">&#9776;</button>
 </nav>
 
-<section class="features">
+<section class="schemes-page">
   <div class="container">
-    <h2 class="features__heading">Sarkari yojanaye aapke liye</h2>
-    <div class="features__grid">
+    <div class="schemes-header">
+      <h1>Sarkari yojanaye aapke liye</h1>
+      <p>Inme se kisi bhi yojana mein apply karne ke liye "Apply karein" button dabaiye — seedha sarkari website khulegi.</p>
+    </div>
 
-      <div class="card">
-        <div class="card__icon">&#127894;</div>
-        <h3 class="card__title">PM-KISAN</h3>
-        <p class="card__text">&#8377;6000/saal seedhe bank account mein, 3 installments mein. Sabhi small &amp; marginal farmers eligible hain.</p>
-        <button class="btn-primary" style="margin-top: var(--space-sm); width: 100%;">Apply karein</button>
+    <div class="schemes-grid">
+
+      <div class="scheme-card">
+        <div class="scheme-card__header">
+          <div class="scheme-card__icon-wrap" style="background: rgba(31,92,61,0.12);">🌾</div>
+          <div class="scheme-card__meta">
+            <span class="scheme-card__tag" style="background: rgba(31,92,61,0.1); color: var(--color-primary);">Income Support</span>
+            <p class="scheme-card__title">PM-KISAN</p>
+            <p class="scheme-card__subtitle">Pradhan Mantri Kisan Samman Nidhi</p>
+          </div>
+        </div>
+        <div class="scheme-card__body">
+          <p class="scheme-card__desc">Chhote aur marginal kisan parivaaron ko har saal ₹6000 ki direct financial support 3 equal installments mein seedhe bank account mein milti hai.</p>
+          <div class="scheme-card__benefit">Key benefit: <strong>₹6,000/saal</strong> — koi bhi chhota zamindaar eligible hai</div>
+        </div>
+        <div class="scheme-card__footer">
+          <a href="https://pmkisan.gov.in" target="_blank" rel="noopener" class="scheme-apply-btn">Apply karein →</a>
+        </div>
       </div>
 
-      <div class="card">
-        <div class="card__icon">&#128176;</div>
-        <h3 class="card__title">Kisan Credit Card</h3>
-        <p class="card__text">Low-interest loan fasal aur equipment ke liye. &#8377;3 lakh tak ka credit limit available.</p>
-        <button class="btn-primary" style="margin-top: var(--space-sm); width: 100%;">Apply karein</button>
+      <div class="scheme-card">
+        <div class="scheme-card__header">
+          <div class="scheme-card__icon-wrap" style="background: rgba(224,134,58,0.12);">💳</div>
+          <div class="scheme-card__meta">
+            <span class="scheme-card__tag" style="background: rgba(224,134,58,0.12); color: var(--color-accent-dark);">Credit & Finance</span>
+            <p class="scheme-card__title">Kisan Credit Card</p>
+            <p class="scheme-card__subtitle">Agricultural Credit Scheme</p>
+          </div>
+        </div>
+        <div class="scheme-card__body">
+          <p class="scheme-card__desc">Fasal ugane ke kharche ke liye kam byaaj wala loan — short-term credit needs poori karne ke liye flexible revolving credit facility.</p>
+          <div class="scheme-card__benefit">Key benefit: <strong>₹3 lakh tak ka credit</strong> — sirf 4% byaaj pe (subsidy ke baad)</div>
+        </div>
+        <div class="scheme-card__footer">
+          <a href="https://www.myscheme.gov.in/search?keyword=kisan+credit+card" target="_blank" rel="noopener" class="scheme-apply-btn">Apply karein →</a>
+        </div>
       </div>
 
-      <div class="card">
-        <div class="card__icon">&#9748;</div>
-        <h3 class="card__title">PM Fasal Bima Yojana</h3>
-        <p class="card__text">Crop insurance natural disasters ke against. Premium bahut kam hai, government subsidize karti hai.</p>
-        <button class="btn-primary" style="margin-top: var(--space-sm); width: 100%;">Apply karein</button>
+      <div class="scheme-card">
+        <div class="scheme-card__header">
+          <div class="scheme-card__icon-wrap" style="background: rgba(52,152,219,0.12);">☔</div>
+          <div class="scheme-card__meta">
+            <span class="scheme-card__tag" style="background: rgba(52,152,219,0.12); color: #2471a3;">Crop Insurance</span>
+            <p class="scheme-card__title">PM Fasal Bima Yojana</p>
+            <p class="scheme-card__subtitle">Pradhan Mantri Fasal Bima Yojana</p>
+          </div>
+        </div>
+        <div class="scheme-card__body">
+          <p class="scheme-card__desc">Praakritik aapdaaon, keeton ya beemariyon se fasal nuksaan hone par financial protection. Premium bahut kam, government zyada deti hai.</p>
+          <div class="scheme-card__benefit">Key benefit: Sirf <strong>Rabi: 1.5%</strong>, <strong>Kharif: 2%</strong> premium — baaki government bharta hai</div>
+        </div>
+        <div class="scheme-card__footer">
+          <a href="https://pmfby.gov.in" target="_blank" rel="noopener" class="scheme-apply-btn">Apply karein →</a>
+        </div>
       </div>
 
-      <div class="card">
-        <div class="card__icon">&#128167;</div>
-        <h3 class="card__title">PM Krishi Sinchai Yojana</h3>
-        <p class="card__text">Irrigation equipment (drip/sprinkler) pe subsidy, har khet ko paani milta rahe.</p>
-        <button class="btn-primary" style="margin-top: var(--space-sm); width: 100%;">Apply karein</button>
+      <div class="scheme-card">
+        <div class="scheme-card__header">
+          <div class="scheme-card__icon-wrap" style="background: rgba(31,92,61,0.12);">💧</div>
+          <div class="scheme-card__meta">
+            <span class="scheme-card__tag" style="background: rgba(31,92,61,0.1); color: var(--color-primary);">Irrigation</span>
+            <p class="scheme-card__title">PM Krishi Sinchai Yojana</p>
+            <p class="scheme-card__subtitle">Har Khet Ko Paani</p>
+          </div>
+        </div>
+        <div class="scheme-card__body">
+          <p class="scheme-card__desc">Drip aur sprinkler irrigation equipment pe subsidy — paani ki bachat ke saath productivity badhaaye. Micro-irrigation ke liye financial help.</p>
+          <div class="scheme-card__benefit">Key benefit: <strong>Drip/Sprinkler pe 55-90% subsidy</strong> — chhote kisaanon ko adhik priority</div>
+        </div>
+        <div class="scheme-card__footer">
+          <a href="https://pmksy.gov.in" target="_blank" rel="noopener" class="scheme-apply-btn">Apply karein →</a>
+        </div>
       </div>
 
-      <div class="card">
-        <div class="card__icon">&#127807;</div>
-        <h3 class="card__title">Soil Health Card Scheme</h3>
-        <p class="card__text">Free soil testing aur nutrient recommendations apni fasal better karne ke liye.</p>
-        <button class="btn-primary" style="margin-top: var(--space-sm); width: 100%;">Apply karein</button>
+      <div class="scheme-card">
+        <div class="scheme-card__header">
+          <div class="scheme-card__icon-wrap" style="background: rgba(139,90,43,0.12);">🌱</div>
+          <div class="scheme-card__meta">
+            <span class="scheme-card__tag" style="background: rgba(139,90,43,0.12); color: #7d6608;">Soil Health</span>
+            <p class="scheme-card__title">Soil Health Card Scheme</p>
+            <p class="scheme-card__subtitle">Mitti Swasthya Kard</p>
+          </div>
+        </div>
+        <div class="scheme-card__body">
+          <p class="scheme-card__desc">Aapki zameen ki mitti ki free testing. Fertilizer recommendations milegi jisse fasal ki productivity badhegi aur kharche kam honge.</p>
+          <div class="scheme-card__benefit">Key benefit: <strong>Bilkul muft soil testing</strong> — crop-specific nutrient recommendations</div>
+        </div>
+        <div class="scheme-card__footer">
+          <a href="https://soilhealth.dac.gov.in" target="_blank" rel="noopener" class="scheme-apply-btn">Apply karein →</a>
+        </div>
       </div>
 
-      <div class="card">
-        <div class="card__icon">&#127858;</div>
-        <h3 class="card__title">National Food Security Mission</h3>
-        <p class="card__text">Better seeds, fertilizers aur training subsidized rate pe, productivity badhane ke liye.</p>
-        <button class="btn-primary" style="margin-top: var(--space-sm); width: 100%;">Apply karein</button>
+      <div class="scheme-card">
+        <div class="scheme-card__header">
+          <div class="scheme-card__icon-wrap" style="background: rgba(243,156,18,0.12);">🌽</div>
+          <div class="scheme-card__meta">
+            <span class="scheme-card__tag" style="background: rgba(243,156,18,0.12); color: #d68910;">Food Security</span>
+            <p class="scheme-card__title">National Food Security Mission</p>
+            <p class="scheme-card__subtitle">Rashtriya Khadya Suraksha Mission</p>
+          </div>
+        </div>
+        <div class="scheme-card__body">
+          <p class="scheme-card__desc">Rice, wheat, pulses ki productivity badhane ke liye better seeds, fertilizers aur modern farming techniques subsidized rates pe. Training bhi milti hai.</p>
+          <div class="scheme-card__benefit">Key benefit: <strong>Subsidized HYV seeds + training</strong> — yield 20-30% tak badh sakti hai</div>
+        </div>
+        <div class="scheme-card__footer">
+          <a href="https://nfsm.gov.in" target="_blank" rel="noopener" class="scheme-apply-btn">Apply karein →</a>
+        </div>
+      </div>
+
+      <div class="scheme-card">
+        <div class="scheme-card__header">
+          <div class="scheme-card__icon-wrap" style="background: rgba(241,196,15,0.15);">☀️</div>
+          <div class="scheme-card__meta">
+            <span class="scheme-card__tag" style="background: rgba(241,196,15,0.15); color: #b7950b;">Solar Energy</span>
+            <p class="scheme-card__title">PM-KUSUM Yojana</p>
+            <p class="scheme-card__subtitle">Kisan Urja Suraksha Evam Utthaan Mahabhiyan</p>
+          </div>
+        </div>
+        <div class="scheme-card__body">
+          <p class="scheme-card__desc">Khet mein solar pump lagaao — bijli aur diesel ka kharcha hamesha ke liye khatam. Banjhar zameen pe solar plant lagakar DISCOM ko bijli bechkar kamai bhi kar sakte ho.</p>
+          <div class="scheme-card__benefit">Key benefit: <strong>Solar pump pe 60% subsidy</strong> — sirf 10% aapko dena hoga, 30% bank loan</div>
+        </div>
+        <div class="scheme-card__footer">
+          <a href="https://pmkusum.mnre.gov.in" target="_blank" rel="noopener" class="scheme-apply-btn">Apply karein →</a>
+        </div>
+      </div>
+
+      <div class="scheme-card">
+        <div class="scheme-card__header">
+          <div class="scheme-card__icon-wrap" style="background: rgba(155,89,182,0.12);">🚁</div>
+          <div class="scheme-card__meta">
+            <span class="scheme-card__tag" style="background: rgba(155,89,182,0.12); color: #7d3c98;">Technology</span>
+            <p class="scheme-card__title">Namo Drone Didi</p>
+            <p class="scheme-card__subtitle">Mahila SHG Drone Yojana</p>
+          </div>
+        </div>
+        <div class="scheme-card__body">
+          <p class="scheme-card__desc">Grameen mahila swayam sahayata samoohon ko drone kharidne ke liye 80% subsidy. 15 din ki muft training ke baad mahilayen drone pilot ban sakti hain aur padosi kisanon ke khetoon mein chidkaav karke acchi kamaai kar sakti hain.</p>
+          <div class="scheme-card__benefit">Key benefit: <strong>80% subsidy (max ₹8 lakh)</strong> — mahilaon ke liye regular income</div>
+        </div>
+        <div class="scheme-card__footer">
+          <a href="https://www.india.gov.in/spotlight/details/namo-drone-didi" target="_blank" rel="noopener" class="scheme-apply-btn">Apply karein →</a>
+        </div>
+      </div>
+
+      <div class="scheme-card">
+        <div class="scheme-card__header">
+          <div class="scheme-card__icon-wrap" style="background: rgba(46,204,113,0.12);">🚜</div>
+          <div class="scheme-card__meta">
+            <span class="scheme-card__tag" style="background: rgba(46,204,113,0.12); color: #1e8449;">Mechanization</span>
+            <p class="scheme-card__title">SMAM Yojana</p>
+            <p class="scheme-card__subtitle">Sub-Mission on Agricultural Mechanization</p>
+          </div>
+        </div>
+        <div class="scheme-card__body">
+          <p class="scheme-card__desc">Vyaktigat kisaan ya FPO khud ka drone ya agricultural machinery kharidna chahte hain toh iss scheme ke tahat 40-50% subsidy milti hai. SC/ST, mahila, aur chhote kisaanon ko adhik priority.</p>
+          <div class="scheme-card__benefit">Key benefit: <strong>40-50% subsidy (max ₹5 lakh)</strong> — drone + modern equipment pe</div>
+        </div>
+        <div class="scheme-card__footer">
+          <a href="https://agrimachinery.nic.in" target="_blank" rel="noopener" class="scheme-apply-btn">Apply karein →</a>
+        </div>
       </div>
 
     </div>
