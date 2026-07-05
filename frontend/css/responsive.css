@@ -1,0 +1,159 @@
+/* ============================================
+   KisanSetu — Responsive Design
+   Mobile: <600px | Tablet: 600-900px | Desktop: >900px
+   ============================================ */
+
+/* ---------- Navbar mobile ---------- */
+@media (max-width: 768px) {
+  .navbar {
+    padding: var(--space-sm) var(--space-sm);
+    flex-wrap: wrap;
+    position: relative;
+  }
+
+  .navbar__links {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    gap: 0;
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    padding: var(--space-xs) 0;
+    order: 3;
+  }
+
+  .navbar__links.open { display: flex; }
+
+  .navbar__links li { width: 100%; }
+
+  .navbar__links a {
+    display: block;
+    padding: 0.7rem var(--space-sm);
+    border-radius: 0;
+    border-bottom: 1px solid var(--color-border);
+    width: 100%;
+  }
+
+  .navbar__links a:last-child { border-bottom: none; }
+  .navbar__menu-toggle { display: block; }
+
+  .navbar__cta {
+    padding: 0.45rem 0.9rem;
+    font-size: 0.82rem;
+  }
+}
+
+/* ---------- Hero ---------- */
+@media (max-width: 600px) {
+  .hero { padding: var(--space-lg) 0 var(--space-md); }
+
+  .hero__heading { font-size: clamp(1.5rem, 6vw, 2rem); }
+
+  .hero__form { flex-direction: column; }
+  .hero__form input, .hero__form button { width: 100%; padding: 0.9rem 1rem; }
+
+  .ticker__track { font-size: 0.78rem; gap: var(--space-md); }
+}
+
+/* ---------- Container ---------- */
+@media (max-width: 600px) {
+  .container { padding: 0 var(--space-sm); }
+}
+
+/* ---------- Stats grid ---------- */
+@media (max-width: 900px) {
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr; }
+}
+
+/* ---------- Dashboard grid ---------- */
+@media (max-width: 900px) {
+  .dashboard__grid { grid-template-columns: 1fr; }
+}
+
+/* ---------- Mandi grid ---------- */
+@media (max-width: 600px) {
+  .mandi-grid { grid-template-columns: 1fr; }
+}
+
+@media (min-width: 600px) and (max-width: 900px) {
+  .mandi-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ---------- Features grid ---------- */
+@media (max-width: 600px) {
+  .features__grid { grid-template-columns: 1fr; }
+}
+
+/* ---------- Quicklinks ---------- */
+@media (max-width: 600px) {
+  .quicklinks-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ---------- Profile ---------- */
+@media (max-width: 800px) {
+  .profile-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .profile-save-bar {
+    flex-direction: column-reverse;
+    gap: var(--space-xs);
+  }
+  .btn-outline, .btn-primary { width: 100%; text-align: center; }
+}
+
+/* ---------- Filter bar ---------- */
+@media (max-width: 600px) {
+  .filter-bar {
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+  .filter-bar select { width: 100%; }
+}
+
+/* ---------- Schemes grid ---------- */
+@media (max-width: 600px) {
+  .schemes-grid { grid-template-columns: 1fr; }
+}
+
+/* ---------- Price table ---------- */
+@media (max-width: 600px) {
+  .price-table { font-size: 0.78rem; }
+  .price-table th, .price-table td { padding: 0.4rem 0.2rem; }
+  .panel { padding: var(--space-sm); }
+}
+
+/* ---------- Auth cards ---------- */
+@media (max-width: 480px) {
+  .auth-card { padding: var(--space-md) var(--space-sm); }
+}
+
+/* ---------- Chart bars ---------- */
+@media (max-width: 600px) {
+  .chart-bars { height: 140px; gap: 4px; }
+  .chart-bar__value, .chart-bar__label { font-size: 0.6rem !important; }
+}
+
+/* ---------- Modal ---------- */
+@media (max-width: 480px) {
+  .modal-box { width: 95%; padding: var(--space-sm); }
+}
+
+/* ---------- Dashboard stat cards ---------- */
+@media (max-width: 480px) {
+  .stat-card__value { font-size: 1.3rem; }
+  .dashboard__name { font-size: 1.4rem; }
+}
+
+/* ---------- Forecast panel ---------- */
+@media (max-width: 600px) {
+  .forecast-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+  }
+}

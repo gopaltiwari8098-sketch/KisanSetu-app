@@ -169,11 +169,51 @@ async function triggerSync(req, res) {
   }
 }
 
+async function getTickerData(req, res) {
+  try {
+    const { state } = req.query;
+    let query = `
+      SELECT DISTINCT ON (c.name_en)
+        c.name_en, c.name_hi,
+        AVG(p.price) as price,
+        m.state
+      FROM prices p
+      JOIN crops c ON p.crop_id = c.id
+      JOIN mandis m ON p.mandi_id = m.id
+      WHERE p.recorded_date = (SELECT MAX(recorded_date) FROM prices)
+    `;
+    const params = [];
+
+    if (state && state !== 'all') {
+      query += ` AND LOWER(m.state) = LOWER($1)`;
+      params.push(state);
+    }
+
+    query += ` GROUP BY c.name_en, c.name_hi, m.state ORDER BY c.name_en`;
+
+    const result = await pool.query(query, params);
+
+    // trend add karo (random ±5% abhi, real mein previous day se compare karenge)
+    const withTrend = result.rows.map(row => ({
+      name_en: row.name_en,
+      name_hi: row.name_hi,
+      price: parseFloat(row.price).toFixed(2),
+      trend: (Math.random() * 10 - 5).toFixed(1)
+    }));
+
+    res.json(withTrend);
+  } catch (err) {
+    console.error('getTickerData error:', err.message);
+    res.status(500).json({ message: 'Ticker data fetch mein error' });
+  }
+}
+
 module.exports = {
   getDashboardSummary,
   getMandiPrices,
   getPriceForecast,
   getAllPrices,
   getCropsList,
+  getTickerData,
   triggerSync
 };
