@@ -17,6 +17,35 @@ document.addEventListener('DOMContentLoaded', async () => {
     nameEl.textContent = profile.fullName || 'Kisan';
   }
 
+  // Weather fetch karo (GPS se)
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const weather = await getWeatherByLocation(pos.coords.latitude, pos.coords.longitude);
+      if (weather) {
+        document.getElementById('weatherPanel').style.display = '';
+        document.getElementById('weatherCity').textContent = `📍 ${weather.city}`;
+        document.getElementById('weatherTemp').textContent = `${weather.temp}°C — ${weather.description}`;
+        document.getElementById('weatherDesc').textContent = `Feels like ${weather.feelsLike}°C`;
+        document.getElementById('weatherHumidity').textContent = weather.humidity;
+        document.getElementById('weatherWind').textContent = weather.windSpeed;
+        document.getElementById('weatherTip').textContent = weather.farmingTip;
+      }
+    }, () => {
+      // GPS denied — Meerut default (UP farmers ke liye)
+      getWeatherByCity('Meerut').then(weather => {
+        if (weather) {
+          document.getElementById('weatherPanel').style.display = '';
+          document.getElementById('weatherCity').textContent = `📍 ${weather.city} (default)`;
+          document.getElementById('weatherTemp').textContent = `${weather.temp}°C — ${weather.description}`;
+          document.getElementById('weatherDesc').textContent = `Feels like ${weather.feelsLike}°C`;
+          document.getElementById('weatherHumidity').textContent = weather.humidity;
+          document.getElementById('weatherWind').textContent = weather.windSpeed;
+          document.getElementById('weatherTip').textContent = weather.farmingTip;
+        }
+      });
+    });
+  }
+
   // Dashboard summary fetch karo (skeleton → real cards)
   const summary = await getDashboardSummary();
   await delay(600);

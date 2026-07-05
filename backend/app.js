@@ -44,7 +44,7 @@ app.get('/api/db-check', async (req, res) => {
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/farmer', require('./routes/farmerRoutes'));
 app.use('/api/price', require('./routes/priceRoutes'));
-
+app.use('/api/weather', require('./routes/weatherRoutes'));
 // Cron job start karo
 require('./jobs/dailyPriceSync');
 console.log('Daily price sync scheduled (roz 6 AM IST)');

@@ -35,6 +35,23 @@
       <h1 class="dashboard__name">Namaste, <span id="farmerName">Kisan</span></h1>
     </div>
 
+    <div class="panel" id="weatherPanel" style="margin-bottom: var(--space-md); display: none;">
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-sm);">
+    <div>
+      <p style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--color-text-muted);" id="weatherCity">Location dhund raha hai...</p>
+      <p style="font-family: var(--font-display); font-size: 1.5rem; color: var(--color-primary-dark);" id="weatherTemp"></p>
+      <p style="font-size: 0.85rem; color: var(--color-text-muted);" id="weatherDesc"></p>
+    </div>
+    <div style="text-align: right;">
+      <p style="font-size: 0.82rem; color: var(--color-text-muted);">Humidity: <span id="weatherHumidity"></span>%</p>
+      <p style="font-size: 0.82rem; color: var(--color-text-muted);">Wind: <span id="weatherWind"></span> m/s</p>
+    </div>
+    <div style="width: 100%;">
+      <p style="font-size: 0.88rem; padding: 0.5rem 0.8rem; background: var(--color-bg); border-radius: 6px; border-left: 3px solid var(--color-accent);" id="weatherTip"></p>
+    </div>
+    </div>
+  </div>
+
     <div class="stats-grid" id="statsSkeleton">
       <div class="skeleton skeleton-card"></div>
       <div class="skeleton skeleton-card"></div>
@@ -175,6 +192,7 @@
 <script src="js/utils/tokenStorage.js"></script>
 <script src="js/utils/formatters.js"></script>
 <script src="js/api/priceApi.js"></script>
+<script src="js/api/weatherApi.js"></script>
 <script src="js/components/renderNavbar.js"></script>
 <script src="js/pages/dashboard.js"></script>
 <script src="js/api/farmerApi.js"></script>
