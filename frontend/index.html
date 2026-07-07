@@ -97,7 +97,7 @@
           <span class="ticker__item">Moong Dal / <span class="ticker__hi">मूंग दाल</span> &#8377;7800/q <span class="ticker__down">&#9660;</span></span>
           <span class="ticker__item">Groundnut / <span class="ticker__hi">मूंगफली</span> &#8377;6100/q <span class="ticker__up">&#9650;</span></span>
           <span class="ticker__item">Bajra / <span class="ticker__hi">बाजरा</span> &#8377;2050/q <span class="ticker__down">&#9660;</span></span>
-          <span class="ticker__item">Cotton / <span class="ticker__hi">कपास</span> &#8377;6700/q <span class="ticker__up">&#9650;</span></span>
+          <span class="ticker__item">Cotton / <span class="ticker__hi">कпас</span> &#8377;6700/q <span class="ticker__up">&#9650;</span></span>
           <span class="ticker__item">Green Chilli / <span class="ticker__hi">हरी मिर्च</span> &#8377;3200/q <span class="ticker__up">&#9650;</span></span>
           <span class="ticker__item">Brinjal / <span class="ticker__hi">बैंगन</span> &#8377;1100/q <span class="ticker__down">&#9660;</span></span>
           <span class="ticker__item">Garlic / <span class="ticker__hi">लहसुन</span> &#8377;8900/q <span class="ticker__up">&#9650;</span></span>
@@ -149,52 +149,12 @@
 <footer class="footer">
   <p>&copy; 2026 KisanSetu. Built for Indian farmers.</p>
 </footer>
+
 <script src="js/config.js"></script>
 <script src="js/utils/tokenStorage.js"></script>
 <script src="js/utils/formatters.js"></script>
 <script src="js/api/priceApi.js"></script>
 <script src="js/components/renderNavbar.js"></script>
-<script>
-  // Hero form — mandi comparison pe redirect
-  const heroForm = document.querySelector('.hero__form');
-  if (heroForm) {
-    heroForm.addEventListener('submit', function (e) {
-      e.preventDefault();
-      const query = this.querySelector('input').value.trim();
-      if (!query) return;
-      window.location.href = `mandi-comparison.html?search=${encodeURIComponent(query)}`;
-    });
-  }
-
-  // Dynamic ticker — backend se real prices fetch karo
-  async function loadTicker() {
-    try {
-      const res = await fetch(`${CONFIG.API_BASE_URL}/price/ticker`);
-      if (!res.ok) throw new Error('Ticker fetch fail');
-      const prices = await res.json();
-      if (!prices || !prices.length) return;
-
-      const track = document.querySelector('.ticker__track');
-      if (!track) return;
-
-      // Double kar do seamless loop ke liye
-      const items = [...prices, ...prices];
-      track.innerHTML = items.map(p => `
-        <span class="ticker__item">
-          ${p.name_en} / <span class="ticker__hi">${p.name_hi}</span>
-          &#8377;${Math.round(p.price).toLocaleString('en-IN')}/q
-          <span class="${parseFloat(p.trend) >= 0 ? 'ticker__up' : 'ticker__down'}">
-            ${parseFloat(p.trend) >= 0 ? '&#9650;' : '&#9660;'}
-          </span>
-        </span>
-      `).join('');
-    } catch (err) {
-      console.warn('Ticker load fail, static data use ho raha hai:', err.message);
-    }
-  }
-
-  document.addEventListener('DOMContentLoaded', loadTicker);
-</script>
 <script src="js/api/weatherApi.js"></script>
 <script>
   const heroForm = document.querySelector('.hero__form');
