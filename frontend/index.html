@@ -115,9 +115,9 @@
 </section>
 
 <div class="container" style="margin-bottom: var(--space-sm);">
-  <div id="homeWeatherBar" style="display:none; background: rgba(255,255,255,0.1); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2); border-radius: var(--radius); padding: 0.6rem var(--space-md); display: flex; align-items: center; gap: var(--space-sm); flex-wrap: wrap;">
-    <span id="homeWeatherIcon" style="font-size: 1.3rem;"></span>
-    <span style="font-family: var(--font-mono); font-size: 0.85rem; color: rgba(255,255,255,0.9);" id="homeWeatherText">Mausam load ho raha hai...</span>
+  <div id="homeWeatherBar" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2); border-radius: var(--radius); padding: 0.6rem var(--space-md); align-items: center; gap: var(--space-sm); flex-wrap: wrap; display: none;">
+    <span id="homeWeatherIcon" style="font-size: 1.3rem;">🌤️</span>
+    <span style="font-family: var(--font-mono); font-size: 0.85rem; color: rgba(255,255,255,0.9);" id="homeWeatherText">Loading...</span>
     <span style="flex:1;"></span>
     <span style="font-size: 0.78rem; background: rgba(255,255,255,0.15); padding: 0.3rem 0.7rem; border-radius: 20px; color: rgba(255,255,255,0.9);" id="homeWeatherTip"></span>
   </div>
@@ -197,25 +197,65 @@
 </script>
 <script src="js/api/weatherApi.js"></script>
 <script>
-  // Weather on home page
-  document.addEventListener('DOMContentLoaded', async () => {
-    const w = await getSmartWeather();
-    if (w) showHomeWeather(w);
-  });
+  const heroForm = document.querySelector('.hero__form');
+  if (heroForm) {
+    heroForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const query = this.querySelector('input').value.trim();
+      if (!query) return;
+      window.location.href = `mandi-comparison.html?search=${encodeURIComponent(query)}`;
+    });
+  }
 
   function showHomeWeather(w) {
+    if (!w) return;
     const bar = document.getElementById('homeWeatherBar');
     const iconMap = {
       '01': '☀️', '02': '⛅', '03': '☁️', '04': '☁️',
       '09': '🌧️', '10': '🌦️', '11': '⛈️', '13': '❄️', '50': '🌫️'
     };
-    const code = (w.icon || '01').substring(0, 2);
+    const code = (w.icon || '01d').substring(0, 2);
     document.getElementById('homeWeatherIcon').textContent = iconMap[code] || '🌤️';
     document.getElementById('homeWeatherText').textContent =
       `${w.city} — ${w.temp}°C, ${w.description} | Humidity: ${w.humidity}%`;
-    document.getElementById('homeWeatherTip').textContent = w.farmingTip;
+    document.getElementById('homeWeatherTip').textContent = w.farmingTip || '';
     bar.style.display = 'flex';
   }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    // Ticker load
+    try {
+      const res = await fetch(`${CONFIG.API_BASE_URL}/price/ticker`);
+      if (res.ok) {
+        const prices = await res.json();
+        if (prices && prices.length) {
+          const track = document.querySelector('.ticker__track');
+          if (track) {
+            const items = [...prices, ...prices];
+            track.innerHTML = items.map(p => `
+              <span class="ticker__item">
+                ${p.name_en} / <span class="ticker__hi">${p.name_hi}</span>
+                &#8377;${Math.round(parseFloat(p.price)).toLocaleString('en-IN')}/q
+                <span class="${parseFloat(p.trend) >= 0 ? 'ticker__up' : 'ticker__down'}">
+                  ${parseFloat(p.trend) >= 0 ? '&#9650;' : '&#9660;'}
+                </span>
+              </span>
+            `).join('');
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Ticker load fail:', err.message);
+    }
+
+    // Weather load
+    try {
+      const w = await getSmartWeather();
+      showHomeWeather(w);
+    } catch (err) {
+      console.warn('Weather load fail:', err.message);
+    }
+  });
 </script>
 </body>
 </html>
