@@ -198,19 +198,9 @@
 <script src="js/api/weatherApi.js"></script>
 <script>
   // Weather on home page
-  document.addEventListener('DOMContentLoaded', () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (pos) => {
-          const w = await getWeatherByLocation(pos.coords.latitude, pos.coords.longitude);
-          if (w) showHomeWeather(w);
-        },
-        async () => {
-          const w = await getWeatherByCity('Delhi');
-          if (w) showHomeWeather(w);
-        }
-      );
-    }
+  document.addEventListener('DOMContentLoaded', async () => {
+    const w = await getSmartWeather();
+    if (w) showHomeWeather(w);
   });
 
   function showHomeWeather(w) {

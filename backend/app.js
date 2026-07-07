@@ -30,6 +30,17 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Root route
+app.get('/', (req, res) => {
+  res.json({
+    app: 'KisanSetu API',
+    version: '1.0.0',
+    status: 'running',
+    docs: '/api/docs',
+    health: '/api/health'
+  });
+});
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'KisanSetu backend chal raha hai', version: '1.0.0' });
