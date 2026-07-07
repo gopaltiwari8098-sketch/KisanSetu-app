@@ -114,6 +114,15 @@
   </div>
 </section>
 
+<div class="container" style="margin-bottom: var(--space-sm);">
+  <div id="homeWeatherBar" style="display:none; background: rgba(255,255,255,0.1); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2); border-radius: var(--radius); padding: 0.6rem var(--space-md); display: flex; align-items: center; gap: var(--space-sm); flex-wrap: wrap;">
+    <span id="homeWeatherIcon" style="font-size: 1.3rem;"></span>
+    <span style="font-family: var(--font-mono); font-size: 0.85rem; color: rgba(255,255,255,0.9);" id="homeWeatherText">Mausam load ho raha hai...</span>
+    <span style="flex:1;"></span>
+    <span style="font-size: 0.78rem; background: rgba(255,255,255,0.15); padding: 0.3rem 0.7rem; border-radius: 20px; color: rgba(255,255,255,0.9);" id="homeWeatherTip"></span>
+  </div>
+</div>
+
 <section class="features">
   <div class="container">
     <h2 class="features__heading">Kya kya milega aapko</h2>
@@ -185,6 +194,38 @@
   }
 
   document.addEventListener('DOMContentLoaded', loadTicker);
+</script>
+<script src="js/api/weatherApi.js"></script>
+<script>
+  // Weather on home page
+  document.addEventListener('DOMContentLoaded', () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          const w = await getWeatherByLocation(pos.coords.latitude, pos.coords.longitude);
+          if (w) showHomeWeather(w);
+        },
+        async () => {
+          const w = await getWeatherByCity('Delhi');
+          if (w) showHomeWeather(w);
+        }
+      );
+    }
+  });
+
+  function showHomeWeather(w) {
+    const bar = document.getElementById('homeWeatherBar');
+    const iconMap = {
+      '01': '☀️', '02': '⛅', '03': '☁️', '04': '☁️',
+      '09': '🌧️', '10': '🌦️', '11': '⛈️', '13': '❄️', '50': '🌫️'
+    };
+    const code = (w.icon || '01').substring(0, 2);
+    document.getElementById('homeWeatherIcon').textContent = iconMap[code] || '🌤️';
+    document.getElementById('homeWeatherText').textContent =
+      `${w.city} — ${w.temp}°C, ${w.description} | Humidity: ${w.humidity}%`;
+    document.getElementById('homeWeatherTip').textContent = w.farmingTip;
+    bar.style.display = 'flex';
+  }
 </script>
 </body>
 </html>
