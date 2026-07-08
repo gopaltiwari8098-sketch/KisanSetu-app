@@ -13,8 +13,29 @@
 <link rel="stylesheet" href="css/forms.css">
 <link rel="stylesheet" href="css/animations.css">
 <link rel="stylesheet" href="css/responsive.css">
+<style>
+.cold-start-banner {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  background: var(--color-accent);
+  color: #fff;
+  padding: 0.6rem var(--space-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-align: center;
+}
+</style>
 </head>
 <body>
+
+<div class="cold-start-banner" id="coldStartBanner">
+  ⏳ Server start ho raha hai... thoda wait karein (30-60 seconds) — ye sirf pehli baar hota hai
+</div>
 
 <nav class="navbar">
   <a href="index.html" class="navbar__logo">Kisan<span>Setu</span></a>
@@ -35,35 +56,34 @@
 
     <form id="loginForm" novalidate>
       <div class="form-group" id="emailGroup">
-        <label for="email">Email ya phone number</label>
+        <label for="email">Email</label>
         <input type="text" id="email" name="email" placeholder="aapka@email.com" autocomplete="username">
-        <p class="form-error">Sahi email ya phone number daalein.</p>
+        <p class="form-error">Sahi email daalein.</p>
       </div>
-
       <div class="form-group" id="passwordGroup">
         <label for="password">Password</label>
         <input type="password" id="password" name="password" placeholder="Apna password daalein" autocomplete="current-password">
         <p class="form-error">Password kam se kam 6 characters ka hona chahiye.</p>
       </div>
-
       <button type="submit" class="auth-submit">Login karein</button>
     </form>
-    <a href="http://localhost:5000/api/auth/google" class="google-btn">
-       <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="20" height="20">
-        Google se login karein
-    </a>
 
     <div class="auth-divider">ya</div>
 
-    <p class="auth-footer-text">Account nahi hai? <a href="signup.html">Yahan signup karein</a></p>
+    <a href="#" class="google-btn google-auth-btn">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="20" height="20">
+      Google se login karein
+    </a>
+
+    <p class="auth-footer-text" style="margin-top: var(--space-sm);">Account nahi hai? <a href="signup.html">Yahan signup karein</a></p>
   </div>
 </section>
 
 <script src="js/config.js"></script>
 <script src="js/utils/tokenStorage.js"></script>
+<script src="js/utils/formatters.js"></script>
 <script src="js/api/authApi.js"></script>
 <script src="js/components/renderNavbar.js"></script>
 <script src="js/pages/auth.js"></script>
-<script src="js/utils/formatters.js"></script>
 </body>
 </html>

@@ -13,8 +13,29 @@
 <link rel="stylesheet" href="css/forms.css">
 <link rel="stylesheet" href="css/animations.css">
 <link rel="stylesheet" href="css/responsive.css">
+<style>
+.cold-start-banner {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  background: var(--color-accent);
+  color: #fff;
+  padding: 0.6rem var(--space-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-align: center;
+}
+</style>
 </head>
 <body>
+
+<div class="cold-start-banner" id="coldStartBanner">
+  ⏳ Server start ho raha hai... thoda wait karein (30-60 seconds) — ye sirf pehli baar hota hai
+</div>
 
 <nav class="navbar">
   <a href="index.html" class="navbar__logo">Kisan<span>Setu</span></a>
@@ -39,93 +60,91 @@
         <input type="text" id="name" name="name" placeholder="Apna naam likhein" autocomplete="name">
         <p class="form-error">Naam daalna zaroori hai.</p>
       </div>
-
       <div class="form-group" id="signupEmailGroup">
         <label for="signupEmail">Email</label>
         <input type="email" id="signupEmail" name="email" placeholder="aapka@email.com" autocomplete="email">
         <p class="form-error">Sahi email address daalein.</p>
       </div>
-
       <div class="form-group" id="phoneGroup">
         <label for="phone">Phone number</label>
         <input type="tel" id="phone" name="phone" placeholder="10 digit mobile number" autocomplete="tel">
         <p class="form-error">10 digit ka sahi mobile number daalein.</p>
       </div>
-
       <div class="form-group" id="locationGroup">
         <label for="state">Apna state chunein</label>
         <select id="state" name="state">
           <option value="">State chunein</option>
-          <option value="Andhra Pradesh">Andhra Pradesh</option>
-          <option value="Arunachal Pradesh">Arunachal Pradesh</option>
-          <option value="Assam">Assam</option>
-          <option value="Bihar">Bihar</option>
-          <option value="Chhattisgarh">Chhattisgarh</option>
-          <option value="Goa">Goa</option>
-          <option value="Gujarat">Gujarat</option>
-          <option value="Haryana">Haryana</option>
-          <option value="Himachal Pradesh">Himachal Pradesh</option>
-          <option value="Jharkhand">Jharkhand</option>
-          <option value="Karnataka">Karnataka</option>
-          <option value="Kerala">Kerala</option>
-          <option value="Madhya Pradesh">Madhya Pradesh</option>
-          <option value="Maharashtra">Maharashtra</option>
-          <option value="Manipur">Manipur</option>
-          <option value="Meghalaya">Meghalaya</option>
-          <option value="Mizoram">Mizoram</option>
-          <option value="Nagaland">Nagaland</option>
-          <option value="Odisha">Odisha</option>
-          <option value="Punjab">Punjab</option>
-          <option value="Rajasthan">Rajasthan</option>
-          <option value="Sikkim">Sikkim</option>
-          <option value="Tamil Nadu">Tamil Nadu</option>
-          <option value="Telangana">Telangana</option>
-          <option value="Tripura">Tripura</option>
-          <option value="Uttar Pradesh">Uttar Pradesh</option>
-          <option value="Uttarakhand">Uttarakhand</option>
-          <option value="West Bengal">West Bengal</option>
-          <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
-          <option value="Chandigarh">Chandigarh</option>
-          <option value="Dadra and Nagar Haveli and Daman and Diu">Dadra and Nagar Haveli and Daman and Diu</option>
-          <option value="Delhi">Delhi (NCT)</option>
-          <option value="Jammu and Kashmir">Jammu and Kashmir</option>
-          <option value="Ladakh">Ladakh</option>
-          <option value="Lakshadweep">Lakshadweep</option>
-          <option value="Puducherry">Puducherry</option>
+          <optgroup label="States">
+            <option value="Andhra Pradesh">Andhra Pradesh</option>
+            <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+            <option value="Assam">Assam</option>
+            <option value="Bihar">Bihar</option>
+            <option value="Chhattisgarh">Chhattisgarh</option>
+            <option value="Goa">Goa</option>
+            <option value="Gujarat">Gujarat</option>
+            <option value="Haryana">Haryana</option>
+            <option value="Himachal Pradesh">Himachal Pradesh</option>
+            <option value="Jharkhand">Jharkhand</option>
+            <option value="Karnataka">Karnataka</option>
+            <option value="Kerala">Kerala</option>
+            <option value="Madhya Pradesh">Madhya Pradesh</option>
+            <option value="Maharashtra">Maharashtra</option>
+            <option value="Manipur">Manipur</option>
+            <option value="Meghalaya">Meghalaya</option>
+            <option value="Mizoram">Mizoram</option>
+            <option value="Nagaland">Nagaland</option>
+            <option value="Odisha">Odisha</option>
+            <option value="Punjab">Punjab</option>
+            <option value="Rajasthan">Rajasthan</option>
+            <option value="Sikkim">Sikkim</option>
+            <option value="Tamil Nadu">Tamil Nadu</option>
+            <option value="Telangana">Telangana</option>
+            <option value="Tripura">Tripura</option>
+            <option value="Uttar Pradesh">Uttar Pradesh</option>
+            <option value="Uttarakhand">Uttarakhand</option>
+            <option value="West Bengal">West Bengal</option>
+          </optgroup>
+          <optgroup label="Union Territories">
+            <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
+            <option value="Chandigarh">Chandigarh</option>
+            <option value="Delhi">Delhi (NCT)</option>
+            <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+            <option value="Ladakh">Ladakh</option>
+            <option value="Lakshadweep">Lakshadweep</option>
+            <option value="Puducherry">Puducherry</option>
+          </optgroup>
         </select>
         <p class="form-error">Apna state chunein.</p>
       </div>
-
       <div class="form-group" id="signupPasswordGroup">
         <label for="signupPassword">Password</label>
         <input type="password" id="signupPassword" name="password" placeholder="Kam se kam 6 characters" autocomplete="new-password">
         <p class="form-error">Password kam se kam 6 characters ka hona chahiye.</p>
       </div>
-
       <div class="form-group" id="confirmPasswordGroup">
         <label for="confirmPassword">Password confirm karein</label>
         <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Password dobara likhein" autocomplete="new-password">
         <p class="form-error">Passwords match nahi kar rahe.</p>
       </div>
-
       <button type="submit" class="auth-submit">Account banaye</button>
     </form>
-    <a href="http://localhost:5000/api/auth/google" class="google-btn">
-       <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="20" height="20">
-       Google se signup karein
-    </a>
 
     <div class="auth-divider">ya</div>
 
-    <p class="auth-footer-text">Already account hai? <a href="login.html">Yahan login karein</a></p>
+    <a href="#" class="google-btn google-auth-btn">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="20" height="20">
+      Google se signup karein
+    </a>
+
+    <p class="auth-footer-text" style="margin-top: var(--space-sm);">Already account hai? <a href="login.html">Yahan login karein</a></p>
   </div>
 </section>
 
 <script src="js/config.js"></script>
 <script src="js/utils/tokenStorage.js"></script>
+<script src="js/utils/formatters.js"></script>
 <script src="js/api/authApi.js"></script>
 <script src="js/components/renderNavbar.js"></script>
 <script src="js/pages/auth.js"></script>
-<script src="js/utils/formatters.js"></script>
 </body>
 </html>
