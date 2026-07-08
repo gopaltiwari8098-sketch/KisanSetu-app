@@ -4,7 +4,7 @@ const pool = require('./db');
 require('dotenv').config();
 
 const CALLBACK_URL = process.env.NODE_ENV === 'production'
-  ? ' https://kisansetu-app.onrender.com/api/auth/google/callback'
+  ? 'https://kisansetu-app.onrender.com/api/auth/google/callback'
   : 'http://localhost:5000/api/auth/google/callback';
 
 passport.use(new GoogleStrategy({
