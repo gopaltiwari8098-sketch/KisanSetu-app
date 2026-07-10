@@ -1,5 +1,5 @@
 const pool = require('../config/db');
-const { sendVerificationEmail } = require('./emailService');
+const { sendPushToFarmer } = require('./pushService');
 const logger = require('../utils/logger');
 
 async function checkAndDispatchAlerts() {
@@ -33,14 +33,17 @@ async function checkAndDispatchAlerts() {
           [alert.id]
         );
 
-        // Email bhejo (optional — agar email service available ho)
-        try {
-          const conditionText = alert.condition === 'above' ? 'upar' : 'neeche';
-          const subject = `KisanSetu Alert: ${alert.name_en} price ₹${Math.round(current).toLocaleString('en-IN')}/q ho gaya`;
-          logger.info(`Alert triggered for ${alert.email}: ${alert.name_en} at ₹${current}`);
-        } catch (emailErr) {
-          logger.warn('Alert email fail:', emailErr.message);
-        }
+        const conditionText = alert.condition === 'above' ? 'upar' : 'neeche';
+        const title = `🔔 KisanSetu Price Alert`;
+        const body = `${alert.name_en} / ${alert.name_hi} ka price ₹${Math.round(current).toLocaleString('en-IN')}/q ho gaya — aapke target se ${conditionText}!`;
+
+        // Push notification bhejo
+        await sendPushToFarmer(alert.farmer_id, title, body, {
+          url: '/mandi-comparison.html',
+          crop: alert.name_en
+        });
+
+        logger.info(`Alert triggered: ${alert.email} — ${alert.name_en} at ₹${current}`);
         triggered++;
       }
     }
@@ -53,4 +56,26 @@ async function checkAndDispatchAlerts() {
   }
 }
 
-module.exports = { checkAndDispatchAlerts };
+// Weather-based farming notifications
+async function sendWeatherAlerts() {
+  try {
+    // Saare farmers ko daily morning tip bhejo (5 AM IST)
+    const farmers = await pool.query(
+      "SELECT id, full_name FROM farmers WHERE is_verified = TRUE LIMIT 1000"
+    );
+
+    for (const farmer of farmers.rows) {
+      await sendPushToFarmer(
+        farmer.id,
+        '🌅 KisanSetu — Subah ki Salaam',
+        'Aaj ke mandi rates check karein aur apni fasal ka sahi daam jaanein!',
+        { url: '/dashboard.html' }
+      );
+    }
+    logger.info(`Morning notifications sent to ${farmers.rows.length} farmers`);
+  } catch (err) {
+    logger.error('sendWeatherAlerts error:', err.message);
+  }
+}
+
+module.exports = { checkAndDispatchAlerts, sendWeatherAlerts };
