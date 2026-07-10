@@ -188,14 +188,20 @@
 
   </div>
 </section>
-
 <script src="js/config.js"></script>
 <script src="js/utils/tokenStorage.js"></script>
 <script src="js/utils/formatters.js"></script>
+<script src="js/utils/pushNotifications.js"></script>
 <script src="js/api/priceApi.js"></script>
 <script src="js/api/farmerApi.js"></script>
 <script src="js/api/weatherApi.js"></script>
 <script src="js/components/renderNavbar.js"></script>
 <script src="js/pages/dashboard.js"></script>
+<script>
+  // Push notifications initialize
+  document.addEventListener('DOMContentLoaded', () => {
+    initPushNotifications();
+  });
+</script>
 </body>
 </html>
