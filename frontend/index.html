@@ -115,11 +115,11 @@
 </section>
 
 <div class="container" style="margin-bottom: var(--space-sm);">
-  <div id="homeWeatherBar" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2); border-radius: var(--radius); padding: 0.6rem var(--space-md); align-items: center; gap: var(--space-sm); flex-wrap: wrap; display: none;">
+  <div id="homeWeatherBar" style="display:none; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 0.6rem var(--space-md); align-items: center; gap: var(--space-sm); flex-wrap: wrap; box-shadow: var(--shadow-card);">
     <span id="homeWeatherIcon" style="font-size: 1.3rem;">🌤️</span>
-    <span style="font-family: var(--font-mono); font-size: 0.85rem; color: rgba(255,255,255,0.9);" id="homeWeatherText">Loading...</span>
+    <span style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--color-text);" id="homeWeatherText">Loading...</span>
     <span style="flex:1;"></span>
-    <span style="font-size: 0.78rem; background: rgba(255,255,255,0.15); padding: 0.3rem 0.7rem; border-radius: 20px; color: rgba(255,255,255,0.9);" id="homeWeatherTip"></span>
+    <span style="font-size: 0.78rem; background: rgba(31,92,61,0.1); color: var(--color-primary); padding: 0.3rem 0.7rem; border-radius: 20px; font-weight: 600;" id="homeWeatherTip"></span>
   </div>
 </div>
 
@@ -168,19 +168,20 @@
   }
 
   function showHomeWeather(w) {
-    if (!w) return;
-    const bar = document.getElementById('homeWeatherBar');
-    const iconMap = {
-      '01': '☀️', '02': '⛅', '03': '☁️', '04': '☁️',
-      '09': '🌧️', '10': '🌦️', '11': '⛈️', '13': '❄️', '50': '🌫️'
-    };
-    const code = (w.icon || '01d').substring(0, 2);
-    document.getElementById('homeWeatherIcon').textContent = iconMap[code] || '🌤️';
-    document.getElementById('homeWeatherText').textContent =
-      `${w.city} — ${w.temp}°C, ${w.description} | Humidity: ${w.humidity}%`;
-    document.getElementById('homeWeatherTip').textContent = w.farmingTip || '';
-    bar.style.display = 'flex';
-  }
+  if (!w) return;
+  const bar = document.getElementById('homeWeatherBar');
+  if (!bar) return;
+  const iconMap = {
+    '01': '☀️', '02': '⛅', '03': '☁️', '04': '☁️',
+    '09': '🌧️', '10': '🌦️', '11': '⛈️', '13': '❄️', '50': '🌫️'
+  };
+  const code = (w.icon || '01d').substring(0, 2);
+  document.getElementById('homeWeatherIcon').textContent = iconMap[code] || '🌤️';
+  document.getElementById('homeWeatherText').textContent =
+    `📍 ${w.city} — ${w.temp}°C, ${w.description} | Humidity: ${w.humidity}%`;
+  document.getElementById('homeWeatherTip').textContent = w.farmingTip || '';
+  bar.style.display = 'flex';
+}
 
   document.addEventListener('DOMContentLoaded', async () => {
     // Ticker load
