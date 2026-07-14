@@ -12,20 +12,14 @@ const COMMODITY_MAP = {
   'onion': 'Onion', 'onion(local)': 'Onion', 'onion(big)': 'Onion',
   'potato': 'Potato', 'potato(deshi)': 'Potato', 'potato(jyoti)': 'Potato',
   'tomato': 'Tomato', 'tomato(deshi)': 'Tomato', 'tomato(hybrid)': 'Tomato',
-  'brinjal': 'Brinjal',
-  'cauliflower': 'Cauliflower',
-  'cabbage': 'Cabbage',
+  'brinjal': 'Brinjal', 'cauliflower': 'Cauliflower', 'cabbage': 'Cabbage',
   'bhindi(ladies finger)': 'Lady Finger', 'bhindi': 'Lady Finger',
   'lady finger': 'Lady Finger', 'okra': 'Lady Finger',
   'green chilli': 'Green Chilli', 'chilly green': 'Green Chilli', 'chilli': 'Green Chilli',
-  'garlic': 'Garlic',
-  'ginger': 'Ginger', 'ginger(dry)': 'Ginger',
-  'carrot': 'Carrot',
-  'peas wet': 'Peas', 'peas': 'Peas', 'peas(raw)': 'Peas',
+  'garlic': 'Garlic', 'ginger': 'Ginger', 'ginger(dry)': 'Ginger',
+  'carrot': 'Carrot', 'peas wet': 'Peas', 'peas': 'Peas', 'peas(raw)': 'Peas',
   'cucumber(kheera)': 'Cucumber', 'cucumber': 'Cucumber',
-  'pumpkin': 'Pumpkin',
-  'bitter gourd': 'Bitter Gourd',
-  'bottle gourd': 'Bottle Gourd',
+  'pumpkin': 'Pumpkin', 'bitter gourd': 'Bitter Gourd', 'bottle gourd': 'Bottle Gourd',
   'coriander(leaves)': 'Green Coriander', 'coriander leaves': 'Green Coriander',
   'spinach': 'Spinach',
   'mustard': 'Mustard', 'mustard(sarson)': 'Mustard', 'rape seed': 'Mustard',
@@ -44,14 +38,9 @@ const COMMODITY_MAP = {
   'banana': 'Banana', 'banana - green': 'Banana',
   'mango (raw)': 'Mango', 'mango': 'Mango',
   'papaya (raw)': 'Papaya', 'papaya': 'Papaya',
-  'guava': 'Guava',
-  'pomegranate': 'Pomegranate',
-  'lemon': 'Lemon',
-  'orange': 'Orange',
-  'grapes': 'Grapes',
-  'watermelon': 'Watermelon',
-  'turmeric': 'Turmeric',
-  'black pepper': 'Black Pepper',
+  'guava': 'Guava', 'pomegranate': 'Pomegranate', 'lemon': 'Lemon',
+  'orange': 'Orange', 'grapes': 'Grapes', 'watermelon': 'Watermelon',
+  'turmeric': 'Turmeric', 'black pepper': 'Black Pepper',
   'cumin(jeera)': 'Cumin', 'cumin': 'Cumin', 'jeera': 'Cumin',
   'coriander(seed)': 'Coriander Seeds', 'dhania': 'Coriander Seeds',
   'coriander seed': 'Coriander Seeds',
@@ -69,39 +58,21 @@ function mapCommodityName(name) {
 
 async function fetchFromAgmarknet(state, limit = 1000) {
   if (!API_KEY) {
-    console.error('AGMARKNET_API_KEY not set');
+    console.error('❌ AGMARKNET_API_KEY not set in environment');
     return [];
   }
   try {
-    // Aaj ki date filter karo (DD/MM/YYYY format)
-    const today = new Date();
-    const dd = String(today.getDate()).padStart(2, '0');
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const yyyy = today.getFullYear();
-    const todayStr = `${dd}/${mm}/${yyyy}`;
-
-    const url = `https://api.data.gov.in/resource/${RESOURCE_ID}?api-key=${API_KEY}&format=json&limit=${limit}&filters[State]=${encodeURIComponent(state)}&filters[arrival_date]=${encodeURIComponent(todayStr)}`;
-
-    const res = await fetch(url, { signal: AbortSignal.timeout(15000) });
+    // Date filter nahi — Agmarknet 1-2 din delay se data upload karta hai
+    const url = `https://api.data.gov.in/resource/${RESOURCE_ID}?api-key=${API_KEY}&format=json&limit=${limit}&filters[State]=${encodeURIComponent(state)}`;
+    console.log(`Fetching ${state}...`);
+    const res = await fetch(url, { signal: AbortSignal.timeout(20000) });
     if (!res.ok) {
-      console.error(`API error: ${res.status} for ${state}`);
+      console.error(`API error ${res.status} for ${state}`);
       return [];
     }
     const data = await res.json();
     const records = data.records || [];
-    console.log(`${state}: ${records.length} records (today filter)`);
-
-    // Agar aaj ka data nahi mila, bina date filter ke try karo
-    if (records.length === 0) {
-      const urlNoDate = `https://api.data.gov.in/resource/${RESOURCE_ID}?api-key=${API_KEY}&format=json&limit=${limit}&filters[State]=${encodeURIComponent(state)}`;
-      const res2 = await fetch(urlNoDate, { signal: AbortSignal.timeout(15000) });
-      if (!res2.ok) return [];
-      const data2 = await res2.json();
-      const records2 = data2.records || [];
-      console.log(`${state}: ${records2.length} records (no date filter)`);
-      return records2;
-    }
-
+    console.log(`${state}: ${records.length} records fetched`);
     return records;
   } catch (err) {
     console.error(`Fetch error (${state}):`, err.message);
@@ -109,53 +80,69 @@ async function fetchFromAgmarknet(state, limit = 1000) {
   }
 }
 
-async function syncPricesToDB(records) {
+async function syncPricesToDB(records, stateName) {
   let synced = 0;
   let skipped = 0;
+  let errors = 0;
 
   for (const record of records) {
     try {
-      // Resource 1 exact field names (lowercase)
       const commodityRaw = record.commodity || '';
       const marketRaw = record.market || '';
-      const stateRaw = record.state || '';
+      const stateRaw = record.state || stateName || '';
       const districtRaw = record.district || '';
       const modalPrice = parseFloat(record.modal_price || 0);
 
-      if (!commodityRaw || !marketRaw || !stateRaw || modalPrice <= 0) continue;
+      if (!commodityRaw || !marketRaw || modalPrice <= 0) {
+        skipped++;
+        continue;
+      }
 
       const dbCropName = mapCommodityName(commodityRaw);
-      if (!dbCropName) { skipped++; continue; }
+      if (!dbCropName) {
+        skipped++;
+        continue;
+      }
 
       const mandiName = `${marketRaw} Mandi`;
 
-      // Mandi dhundo ya banao
-      let mandiResult = await pool.query(
+      // Mandi find or create
+      let mandiId;
+      const existingMandi = await pool.query(
         'SELECT id FROM mandis WHERE LOWER(name) = LOWER($1) AND LOWER(state) = LOWER($2)',
         [mandiName, stateRaw]
       );
 
-      let mandiId;
-      if (mandiResult.rows.length === 0) {
+      if (existingMandi.rows.length > 0) {
+        mandiId = existingMandi.rows[0].id;
+      } else {
         const newMandi = await pool.query(
           `INSERT INTO mandis (name, state, district)
            VALUES ($1, $2, $3)
            ON CONFLICT DO NOTHING RETURNING id`,
           [mandiName, stateRaw, districtRaw]
         );
-        if (!newMandi.rows.length) continue;
-        mandiId = newMandi.rows[0].id;
-      } else {
-        mandiId = mandiResult.rows[0].id;
+        if (!newMandi.rows.length) {
+          // Might have been inserted by concurrent request
+          const retry = await pool.query(
+            'SELECT id FROM mandis WHERE LOWER(name) = LOWER($1) AND LOWER(state) = LOWER($2)',
+            [mandiName, stateRaw]
+          );
+          if (!retry.rows.length) { skipped++; continue; }
+          mandiId = retry.rows[0].id;
+        } else {
+          mandiId = newMandi.rows[0].id;
+        }
       }
 
-      // Crop dhundo
+      // Crop find
       const cropResult = await pool.query(
         'SELECT id FROM crops WHERE name_en = $1',
         [dbCropName]
       );
-      if (!cropResult.rows.length) continue;
+      if (!cropResult.rows.length) { skipped++; continue; }
 
+      // Price insert/update
       await pool.query(
         `INSERT INTO prices (mandi_id, crop_id, price, recorded_date)
          VALUES ($1, $2, $3, CURRENT_DATE)
@@ -164,12 +151,14 @@ async function syncPricesToDB(records) {
         [mandiId, cropResult.rows[0].id, modalPrice]
       );
       synced++;
+
     } catch (err) {
-      // Silent continue
+      errors++;
+      if (errors <= 3) console.error('Record error:', err.message);
     }
   }
 
-  console.log(`Batch complete — Synced: ${synced}, Skipped: ${skipped}`);
+  console.log(`Batch done — Synced: ${synced}, Skipped: ${skipped}, Errors: ${errors}`);
   return synced;
 }
 
@@ -180,8 +169,7 @@ async function runDailySync() {
     'Uttar Pradesh', 'Punjab', 'Haryana', 'Rajasthan',
     'Madhya Pradesh', 'Maharashtra', 'Gujarat', 'Bihar',
     'West Bengal', 'Karnataka', 'Tamil Nadu', 'Andhra Pradesh',
-    'Telangana', 'Odisha', 'Chhattisgarh', 'Uttarakhand',
-    'Himachal Pradesh', 'Assam', 'Jharkhand', 'Kerala'
+    'Telangana', 'Odisha', 'Chhattisgarh', 'Uttarakhand'
   ];
 
   let totalSynced = 0;
@@ -189,13 +177,14 @@ async function runDailySync() {
   for (const state of states) {
     const records = await fetchFromAgmarknet(state, 1000);
     if (records.length > 0) {
-      const synced = await syncPricesToDB(records);
+      const synced = await syncPricesToDB(records, state);
       totalSynced += synced;
     }
-    await new Promise(r => setTimeout(r, 600));
+    // Rate limit avoid
+    await new Promise(r => setTimeout(r, 800));
   }
 
-  console.log(`=== Sync Complete: ${totalSynced} real prices inserted ===`);
+  console.log(`=== Sync Complete: ${totalSynced} real prices ===`);
   return totalSynced;
 }
 

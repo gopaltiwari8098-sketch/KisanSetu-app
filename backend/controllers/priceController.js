@@ -161,10 +161,18 @@ async function getCropsList(req, res) {
 
 async function triggerSync(req, res) {
   try {
-    const { triggerManualSync } = require('../jobs/dailyPriceSync');
-    const count = await triggerManualSync();
-    res.json({ message: `Sync complete. ${count} records updated.` });
+    console.log('Manual sync triggered...');
+    const { runDailySync } = require('../jobs/dailyPriceSync');
+    const count = await runDailySync();
+    res.json({
+      message: `Sync complete. ${count} records updated.`,
+      realData: count > 0,
+      note: count === 0
+        ? 'Agmarknet se data nahi mila — seed data already updated hai. Kal subah 6 AM pe phir try hoga.'
+        : `${count} real Agmarknet prices database mein save ho gaye!`
+    });
   } catch (err) {
+    console.error('triggerSync error:', err.message);
     res.status(500).json({ message: 'Sync fail hua: ' + err.message });
   }
 }
