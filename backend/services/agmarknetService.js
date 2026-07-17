@@ -6,7 +6,8 @@ const RESOURCE_ID = '9ef84268-d588-465a-a308-a864a43d0070';
 
 const COMMODITY_MAP = {
   'wheat': 'Wheat', 'wheat(other)': 'Wheat', 'wheat(dara)': 'Wheat',
-  'rice': 'Rice', 'paddy(dpr)': 'Rice', 'paddy': 'Rice', 'rice (common)': 'Rice',
+  'rice': 'Rice', 'paddy(dpr)': 'Rice', 'paddy': 'Rice',
+  'rice (common)': 'Rice', 'rice(common)': 'Rice',
   'maize': 'Maize', 'bajra': 'Bajra', 'jowar(white)': 'Jowar', 'jowar': 'Jowar',
   'barley': 'Barley',
   'onion': 'Onion', 'onion(local)': 'Onion', 'onion(big)': 'Onion',
@@ -58,31 +59,42 @@ function mapCommodityName(name) {
 
 async function fetchFromAgmarknet(state, limit = 1000) {
   if (!API_KEY) {
-    console.error('❌ AGMARKNET_API_KEY not set in environment');
+    console.error('[AGMARKNET] ❌ API_KEY not set in environment');
     return [];
   }
+
   try {
-    // Date filter nahi — Agmarknet 1-2 din delay se data upload karta hai
     const url = `https://api.data.gov.in/resource/${RESOURCE_ID}?api-key=${API_KEY}&format=json&limit=${limit}&filters[State]=${encodeURIComponent(state)}`;
-    console.log(`Fetching ${state}...`);
-    const res = await fetch(url, { signal: AbortSignal.timeout(20000) });
+    console.log(`[AGMARKNET] Fetching ${state} (limit ${limit})...`);
+
+    const res = await fetch(url, { signal: AbortSignal.timeout(25000) });
+
     if (!res.ok) {
-      console.error(`API error ${res.status} for ${state}`);
+      console.error(`[AGMARKNET] HTTP error ${res.status} for ${state}`);
       return [];
     }
+
     const data = await res.json();
     const records = data.records || [];
-    console.log(`${state}: ${records.length} records fetched`);
+    console.log(`[AGMARKNET] ${state}: ${records.length} records received (total available: ${data.total})`);
+
+    if (records.length > 0) {
+      const sample = records[0];
+      console.log(`[AGMARKNET] Sample - commodity: "${sample.commodity}", market: "${sample.market}", price: ${sample.modal_price}`);
+    }
+
     return records;
   } catch (err) {
-    console.error(`Fetch error (${state}):`, err.message);
+    console.error(`[AGMARKNET] Fetch error (${state}): ${err.message}`);
     return [];
   }
 }
 
 async function syncPricesToDB(records, stateName) {
   let synced = 0;
-  let skipped = 0;
+  let skippedNoMapping = 0;
+  let skippedNoPrice = 0;
+  let skippedNoCrop = 0;
   let errors = 0;
 
   for (const record of records) {
@@ -93,16 +105,11 @@ async function syncPricesToDB(records, stateName) {
       const districtRaw = record.district || '';
       const modalPrice = parseFloat(record.modal_price || 0);
 
-      if (!commodityRaw || !marketRaw || modalPrice <= 0) {
-        skipped++;
-        continue;
-      }
+      if (modalPrice <= 0) { skippedNoPrice++; continue; }
+      if (!commodityRaw || !marketRaw) { skippedNoPrice++; continue; }
 
       const dbCropName = mapCommodityName(commodityRaw);
-      if (!dbCropName) {
-        skipped++;
-        continue;
-      }
+      if (!dbCropName) { skippedNoMapping++; continue; }
 
       const mandiName = `${marketRaw} Mandi`;
 
@@ -122,16 +129,15 @@ async function syncPricesToDB(records, stateName) {
            ON CONFLICT DO NOTHING RETURNING id`,
           [mandiName, stateRaw, districtRaw]
         );
-        if (!newMandi.rows.length) {
-          // Might have been inserted by concurrent request
+        if (newMandi.rows.length > 0) {
+          mandiId = newMandi.rows[0].id;
+        } else {
           const retry = await pool.query(
             'SELECT id FROM mandis WHERE LOWER(name) = LOWER($1) AND LOWER(state) = LOWER($2)',
             [mandiName, stateRaw]
           );
-          if (!retry.rows.length) { skipped++; continue; }
+          if (!retry.rows.length) continue;
           mandiId = retry.rows[0].id;
-        } else {
-          mandiId = newMandi.rows[0].id;
         }
       }
 
@@ -140,9 +146,9 @@ async function syncPricesToDB(records, stateName) {
         'SELECT id FROM crops WHERE name_en = $1',
         [dbCropName]
       );
-      if (!cropResult.rows.length) { skipped++; continue; }
+      if (!cropResult.rows.length) { skippedNoCrop++; continue; }
 
-      // Price insert/update
+      // Price upsert
       await pool.query(
         `INSERT INTO prices (mandi_id, crop_id, price, recorded_date)
          VALUES ($1, $2, $3, CURRENT_DATE)
@@ -154,37 +160,43 @@ async function syncPricesToDB(records, stateName) {
 
     } catch (err) {
       errors++;
-      if (errors <= 3) console.error('Record error:', err.message);
+      if (errors <= 5) console.error(`[AGMARKNET] Record error: ${err.message}`);
     }
   }
 
-  console.log(`Batch done — Synced: ${synced}, Skipped: ${skipped}, Errors: ${errors}`);
+  if (records.length > 0) {
+    console.log(`[AGMARKNET] Batch stats — Synced: ${synced}, No mapping: ${skippedNoMapping}, No crop in DB: ${skippedNoCrop}, No price: ${skippedNoPrice}, Errors: ${errors}`);
+  }
+
   return synced;
 }
 
 async function runDailySync() {
-  console.log('=== Agmarknet Daily Sync Start ===');
+  console.log('[AGMARKNET] === Daily Sync Start ===');
 
   const states = [
-    'Uttar Pradesh', 'Punjab', 'Haryana', 'Rajasthan',
-    'Madhya Pradesh', 'Maharashtra', 'Gujarat', 'Bihar',
-    'West Bengal', 'Karnataka', 'Tamil Nadu', 'Andhra Pradesh',
+    'Andhra Pradesh', 'Uttar Pradesh', 'Punjab', 'Haryana',
+    'Rajasthan', 'Madhya Pradesh', 'Maharashtra', 'Gujarat',
+    'Bihar', 'West Bengal', 'Karnataka', 'Tamil Nadu',
     'Telangana', 'Odisha', 'Chhattisgarh', 'Uttarakhand'
   ];
 
   let totalSynced = 0;
 
   for (const state of states) {
-    const records = await fetchFromAgmarknet(state, 1000);
-    if (records.length > 0) {
-      const synced = await syncPricesToDB(records, state);
-      totalSynced += synced;
+    try {
+      const records = await fetchFromAgmarknet(state, 1000);
+      if (records.length > 0) {
+        const synced = await syncPricesToDB(records, state);
+        totalSynced += synced;
+      }
+      await new Promise(r => setTimeout(r, 800));
+    } catch (err) {
+      console.error(`[AGMARKNET] State ${state} failed: ${err.message}`);
     }
-    // Rate limit avoid
-    await new Promise(r => setTimeout(r, 800));
   }
 
-  console.log(`=== Sync Complete: ${totalSynced} real prices ===`);
+  console.log(`[AGMARKNET] === Sync Complete: ${totalSynced} real prices inserted ===`);
   return totalSynced;
 }
 

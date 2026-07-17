@@ -8,7 +8,6 @@ require('dotenv').config();
 
 const app = express();
 
-// CORS — production mein sab allow (capstone project ke liye theek hai)
 app.use(cors({
   origin: true,
   credentials: true
@@ -17,16 +16,20 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(session({
+// Session — sirf Google OAuth callback ke liye
+// Production mein MemoryStore warning suppress karo
+const sessionConfig = {
   secret: process.env.SESSION_SECRET || 'kisansetu_session_secret',
   resave: false,
   saveUninitialized: false,
   cookie: {
     secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    maxAge: 10 * 60 * 1000 // 10 minutes — sirf OAuth ke liye
   }
-}));
+};
 
+app.use(session(sessionConfig));
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -36,14 +39,18 @@ app.get('/', (req, res) => {
     app: 'KisanSetu API',
     version: '1.0.0',
     status: 'running',
-    docs: '/api/docs',
     health: '/api/health'
   });
 });
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'KisanSetu backend chal raha hai', timestamp: new Date().toISOString() });
+  res.json({
+    status: 'ok',
+    message: 'KisanSetu backend chal raha hai',
+    timestamp: new Date().toISOString(),
+    uptime: Math.round(process.uptime()) + 's'
+  });
 });
 
 app.get('/api/db-check', async (req, res) => {
@@ -56,7 +63,6 @@ app.get('/api/db-check', async (req, res) => {
   }
 });
 
-// Swagger docs
 app.get('/api/docs', (req, res) => {
   res.json(require('./docs/swagger'));
 });
