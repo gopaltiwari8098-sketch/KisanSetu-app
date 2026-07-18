@@ -12,12 +12,53 @@ document.addEventListener('DOMContentLoaded', async () => {
   const modalPrice = document.getElementById('modalPrice');
   const modalTrend = document.getElementById('modalTrend');
 
+  // ✅ URL search param — "mathura" search se state filter auto-set
+  const urlParams = new URLSearchParams(window.location.search);
+  const searchQuery = urlParams.get('search');
+
   // Saari crops load karo
   const crops = await getCropsList();
   if (crops && crops.length) {
     cropFilter.innerHTML = crops.map(c =>
       `<option value="${c.name_en}">${c.name_en} / ${c.name_hi}</option>`
     ).join('');
+  }
+
+  // ✅ Search query se state match karo
+  if (searchQuery) {
+    const query = searchQuery.toLowerCase();
+
+    // State map — common city/district names se state match karo
+    const cityStateMap = {
+      'mathura': 'Uttar Pradesh', 'meerut': 'Uttar Pradesh', 'agra': 'Uttar Pradesh',
+      'lucknow': 'Uttar Pradesh', 'kanpur': 'Uttar Pradesh', 'varanasi': 'Uttar Pradesh',
+      'allahabad': 'Uttar Pradesh', 'prayagraj': 'Uttar Pradesh', 'bareilly': 'Uttar Pradesh',
+      'gorakhpur': 'Uttar Pradesh', 'aligarh': 'Uttar Pradesh', 'moradabad': 'Uttar Pradesh',
+      'vrindavan': 'Uttar Pradesh', 'muzaffarnagar': 'Uttar Pradesh', 'hapur': 'Uttar Pradesh',
+      'amritsar': 'Punjab', 'ludhiana': 'Punjab', 'jalandhar': 'Punjab', 'patiala': 'Punjab',
+      'karnal': 'Haryana', 'hisar': 'Haryana', 'rohtak': 'Haryana', 'ambala': 'Haryana',
+      'jaipur': 'Rajasthan', 'jodhpur': 'Rajasthan', 'kota': 'Rajasthan', 'ajmer': 'Rajasthan',
+      'bhopal': 'Madhya Pradesh', 'indore': 'Madhya Pradesh', 'gwalior': 'Madhya Pradesh',
+      'mumbai': 'Maharashtra', 'pune': 'Maharashtra', 'nagpur': 'Maharashtra', 'nashik': 'Maharashtra',
+      'ahmedabad': 'Gujarat', 'surat': 'Gujarat', 'vadodara': 'Gujarat', 'rajkot': 'Gujarat',
+      'patna': 'Bihar', 'gaya': 'Bihar', 'muzaffarpur': 'Bihar',
+      'kolkata': 'West Bengal', 'howrah': 'West Bengal', 'siliguri': 'West Bengal',
+      'bangalore': 'Karnataka', 'mysore': 'Karnataka', 'hubli': 'Karnataka',
+      'chennai': 'Tamil Nadu', 'coimbatore': 'Tamil Nadu', 'madurai': 'Tamil Nadu',
+      'hyderabad': 'Telangana', 'warangal': 'Telangana',
+      'visakhapatnam': 'Andhra Pradesh', 'vijayawada': 'Andhra Pradesh', 'guntur': 'Andhra Pradesh',
+    };
+
+    const matchedState = cityStateMap[query];
+    if (matchedState) {
+      stateFilter.value = matchedState;
+      // Page title update karo
+      const greeting = document.querySelector('.dashboard__greeting');
+      if (greeting) greeting.textContent = `"${searchQuery}" ke results — ${matchedState}`;
+    }
+
+    // Mandi naam mein bhi search karo (grid render ke baad)
+    window._searchQuery = query;
   }
 
   function openModal(mandi) {
@@ -47,23 +88,34 @@ document.addEventListener('DOMContentLoaded', async () => {
     const sort = sortFilter.value;
 
     const data = await getMandiPrices(crop, state);
-    await delay(600);
+    await delay(500);
 
     skeleton.style.display = 'none';
     grid.style.display = '';
 
     if (!data || !data.length) {
       grid.innerHTML = `
-        <p style="color:var(--color-text-muted); grid-column:1/-1; text-align:center; padding:var(--space-lg) 0;">
+        <p style="color:var(--color-text-muted);grid-column:1/-1;text-align:center;padding:var(--space-lg) 0;">
           Aaj ke rates nahi mile. Kal dobara check karein.
         </p>`;
       resultsCount.textContent = '0 mandis mili';
       return;
     }
 
-    const sorted = [...data].sort((a, b) =>
+    // Sort
+    let sorted = [...data].sort((a, b) =>
       sort === 'price_asc' ? a.price - b.price : b.price - a.price
     );
+
+    // ✅ Search query se mandi naam filter karo
+    const searchQ = window._searchQuery;
+    if (searchQ) {
+      const filtered = sorted.filter(m =>
+        m.name.toLowerCase().includes(searchQ) ||
+        m.district.toLowerCase().includes(searchQ)
+      );
+      if (filtered.length > 0) sorted = filtered;
+    }
 
     resultsCount.textContent = `${sorted.length} mandis mili`;
 
