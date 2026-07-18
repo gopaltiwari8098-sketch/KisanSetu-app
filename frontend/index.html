@@ -4,31 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>KisanSetu - Bridging Farmers to Fair Prices</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%BE%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/variables.css">
 <link rel="stylesheet" href="css/navbar.css">
 <link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="css/responsive.css">
-<style>
-.hero {
-  background-image:
-    linear-gradient(to right,
-      rgba(18, 61, 40, 0.93) 0%,
-      rgba(18, 61, 40, 0.75) 60%,
-      rgba(18, 61, 40, 0.4) 100%),
-    url('https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=1400&q=80');
-  background-size: cover;
-  background-position: center 40%;
-  background-repeat: no-repeat;
-}
-.hero__eyebrow { color: #f0c060; }
-.hero__heading { color: #ffffff; }
-.hero__heading em { color: #7edd9a; }
-.hero__subtext { color: rgba(255,255,255,0.82); }
-</style>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%BE%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="css/animations.css">
+<link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
 
@@ -40,18 +23,38 @@
     <li><a href="price-trends.html">Price Trends</a></li>
     <li><a href="schemes.html">Schemes</a></li>
   </ul>
-  <a href="login.html" class="navbar__cta">Login</a>
+  <a href="login.html" class="navbar__cta" id="navLoginBtn">Login</a>
   <button class="navbar__menu-toggle" aria-label="Menu">&#9776;</button>
 </nav>
 
 <section class="hero">
   <div class="container">
+
+    <div class="container" style="margin-bottom: var(--space-sm); margin-top: var(--space-sm);">
+      <div id="homeWeatherBar" style="
+        display: none;
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius);
+        padding: 0.7rem var(--space-md);
+        align-items: center;
+        gap: var(--space-sm);
+        flex-wrap: wrap;
+        box-shadow: var(--shadow-card);
+      ">
+        <span id="homeWeatherIcon" style="font-size: 1.4rem;">🌤️</span>
+        <span style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--color-text); font-weight: 500;" id="homeWeatherText">Mausam load ho raha hai...</span>
+        <span style="flex: 1;"></span>
+        <span style="font-size: 0.78rem; background: rgba(31,92,61,0.1); color: var(--color-primary); padding: 0.3rem 0.8rem; border-radius: 999px; font-weight: 600; border: 1px solid rgba(31,92,61,0.2);" id="homeWeatherTip"></span>
+      </div>
+    </div>
+
     <p class="hero__eyebrow">Aaj ka mandi bhav</p>
     <h1 class="hero__heading">Bridging farmers to <em>fair prices</em> through AI</h1>
     <p class="hero__subtext">Real-time mandi rates, AI-powered price forecasts, aur government schemes — sab ek jagah. Apni fasal ka sahi daam jaano, sahi mandi chuno.</p>
 
-    <form class="hero__form">
-      <input type="text" placeholder="Apna gaon ya mandi naam likhein" aria-label="Search mandi">
+    <form class="hero__form" id="heroSearchForm">
+      <input type="text" id="heroSearchInput" placeholder="Apna gaon ya mandi naam likhein" aria-label="Search mandi">
       <button type="submit">Rates dekhein</button>
     </form>
 
@@ -64,87 +67,26 @@
           <span class="ticker__item">Potato / <span class="ticker__hi">आलू</span> &#8377;950/q <span class="ticker__up">&#9650;</span></span>
           <span class="ticker__item">Tomato / <span class="ticker__hi">टमाटर</span> &#8377;1200/q <span class="ticker__down">&#9660;</span></span>
           <span class="ticker__item">Mustard / <span class="ticker__hi">सरसों</span> &#8377;5400/q <span class="ticker__down">&#9660;</span></span>
-          <span class="ticker__item">Sugarcane / <span class="ticker__hi">गन्ना</span> &#8377;340/q <span class="ticker__up">&#9650;</span></span>
-          <span class="ticker__item">Maize / <span class="ticker__hi">मक्का</span> &#8377;1850/q <span class="ticker__up">&#9650;</span></span>
-          <span class="ticker__item">Soybean / <span class="ticker__hi">सोयाबीन</span> &#8377;4300/q <span class="ticker__down">&#9660;</span></span>
+          <span class="ticker__item">Garlic / <span class="ticker__hi">लहसुन</span> &#8377;8900/q <span class="ticker__up">&#9650;</span></span>
           <span class="ticker__item">Gram / <span class="ticker__hi">चना</span> &#8377;5600/q <span class="ticker__up">&#9650;</span></span>
           <span class="ticker__item">Arhar Dal / <span class="ticker__hi">अरहर दाल</span> &#8377;7200/q <span class="ticker__up">&#9650;</span></span>
-          <span class="ticker__item">Moong Dal / <span class="ticker__hi">मूंग दाल</span> &#8377;7800/q <span class="ticker__down">&#9660;</span></span>
-          <span class="ticker__item">Groundnut / <span class="ticker__hi">मूंगफली</span> &#8377;6100/q <span class="ticker__up">&#9650;</span></span>
-          <span class="ticker__item">Bajra / <span class="ticker__hi">बाजरा</span> &#8377;2050/q <span class="ticker__down">&#9660;</span></span>
-          <span class="ticker__item">Cotton / <span class="ticker__hi">कपास</span> &#8377;6700/q <span class="ticker__up">&#9650;</span></span>
-          <span class="ticker__item">Green Chilli / <span class="ticker__hi">हरी मिर्च</span> &#8377;3200/q <span class="ticker__up">&#9650;</span></span>
-          <span class="ticker__item">Brinjal / <span class="ticker__hi">बैंगन</span> &#8377;1100/q <span class="ticker__down">&#9660;</span></span>
-          <span class="ticker__item">Garlic / <span class="ticker__hi">लहसुन</span> &#8377;8900/q <span class="ticker__up">&#9650;</span></span>
-          <span class="ticker__item">Cauliflower / <span class="ticker__hi">फूलगोभी</span> &#8377;1400/q <span class="ticker__down">&#9660;</span></span>
-          <span class="ticker__item">Cabbage / <span class="ticker__hi">पत्तागोभी</span> &#8377;850/q <span class="ticker__up">&#9650;</span></span>
-          <span class="ticker__item">Lady Finger / <span class="ticker__hi">भिंडी</span> &#8377;1650/q <span class="ticker__up">&#9650;</span></span>
-          <span class="ticker__item">Urad Dal / <span class="ticker__hi">उड़द दाल</span> &#8377;7500/q <span class="ticker__down">&#9660;</span></span>
-          <span class="ticker__item">Masoor Dal / <span class="ticker__hi">मसूर दाल</span> &#8377;6800/q <span class="ticker__up">&#9650;</span></span>
           <span class="ticker__item">Rice / <span class="ticker__hi">चावल</span> &#8377;3100/q <span class="ticker__up">&#9650;</span></span>
-          <span class="ticker__item">Jowar / <span class="ticker__hi">ज्वार</span> &#8377;2900/q <span class="ticker__down">&#9660;</span></span>
-
+          <span class="ticker__item">Cotton / <span class="ticker__hi">कपास</span> &#8377;6700/q <span class="ticker__down">&#9660;</span></span>
           <span class="ticker__item">Wheat / <span class="ticker__hi">गेहूं</span> &#8377;2150/q <span class="ticker__up">&#9650;</span></span>
           <span class="ticker__item">Onion / <span class="ticker__hi">प्याज</span> &#8377;1800/q <span class="ticker__down">&#9660;</span></span>
           <span class="ticker__item">Potato / <span class="ticker__hi">आलू</span> &#8377;950/q <span class="ticker__up">&#9650;</span></span>
           <span class="ticker__item">Tomato / <span class="ticker__hi">टमाटर</span> &#8377;1200/q <span class="ticker__down">&#9660;</span></span>
           <span class="ticker__item">Mustard / <span class="ticker__hi">सरसों</span> &#8377;5400/q <span class="ticker__down">&#9660;</span></span>
-          <span class="ticker__item">Sugarcane / <span class="ticker__hi">गन्ना</span> &#8377;340/q <span class="ticker__up">&#9650;</span></span>
-          <span class="ticker__item">Maize / <span class="ticker__hi">मक्का</span> &#8377;1850/q <span class="ticker__up">&#9650;</span></span>
-          <span class="ticker__item">Soybean / <span class="ticker__hi">सोयाबीन</span> &#8377;4300/q <span class="ticker__down">&#9660;</span></span>
+          <span class="ticker__item">Garlic / <span class="ticker__hi">लहसुन</span> &#8377;8900/q <span class="ticker__up">&#9650;</span></span>
           <span class="ticker__item">Gram / <span class="ticker__hi">चना</span> &#8377;5600/q <span class="ticker__up">&#9650;</span></span>
           <span class="ticker__item">Arhar Dal / <span class="ticker__hi">अरहर दाल</span> &#8377;7200/q <span class="ticker__up">&#9650;</span></span>
-          <span class="ticker__item">Moong Dal / <span class="ticker__hi">मूंग दाल</span> &#8377;7800/q <span class="ticker__down">&#9660;</span></span>
-          <span class="ticker__item">Groundnut / <span class="ticker__hi">मूंगफली</span> &#8377;6100/q <span class="ticker__up">&#9650;</span></span>
-          <span class="ticker__item">Bajra / <span class="ticker__hi">बाजरा</span> &#8377;2050/q <span class="ticker__down">&#9660;</span></span>
-          <span class="ticker__item">Cotton / <span class="ticker__hi">कпас</span> &#8377;6700/q <span class="ticker__up">&#9650;</span></span>
-          <span class="ticker__item">Green Chilli / <span class="ticker__hi">हरी मिर्च</span> &#8377;3200/q <span class="ticker__up">&#9650;</span></span>
-          <span class="ticker__item">Brinjal / <span class="ticker__hi">बैंगन</span> &#8377;1100/q <span class="ticker__down">&#9660;</span></span>
-          <span class="ticker__item">Garlic / <span class="ticker__hi">लहसुन</span> &#8377;8900/q <span class="ticker__up">&#9650;</span></span>
-          <span class="ticker__item">Cauliflower / <span class="ticker__hi">फूलगोभी</span> &#8377;1400/q <span class="ticker__down">&#9660;</span></span>
-          <span class="ticker__item">Cabbage / <span class="ticker__hi">पत्तागोभी</span> &#8377;850/q <span class="ticker__up">&#9650;</span></span>
-          <span class="ticker__item">Lady Finger / <span class="ticker__hi">भिंडी</span> &#8377;1650/q <span class="ticker__up">&#9650;</span></span>
-          <span class="ticker__item">Urad Dal / <span class="ticker__hi">उड़द दाल</span> &#8377;7500/q <span class="ticker__down">&#9660;</span></span>
-          <span class="ticker__item">Masoor Dal / <span class="ticker__hi">मसूर दाल</span> &#8377;6800/q <span class="ticker__up">&#9650;</span></span>
           <span class="ticker__item">Rice / <span class="ticker__hi">चावल</span> &#8377;3100/q <span class="ticker__up">&#9650;</span></span>
-          <span class="ticker__item">Jowar / <span class="ticker__hi">ज्वार</span> &#8377;2900/q <span class="ticker__down">&#9660;</span></span>
+          <span class="ticker__item">Cotton / <span class="ticker__hi">कपास</span> &#8377;6700/q <span class="ticker__down">&#9660;</span></span>
         </div>
       </div>
     </div>
   </div>
 </section>
-
-<div class="container" style="margin-bottom: var(--space-sm); margin-top: var(--space-sm);">
-  <div id="homeWeatherBar" style="
-    display: none;
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius);
-    padding: 0.7rem var(--space-md);
-    align-items: center;
-    gap: var(--space-sm);
-    flex-wrap: wrap;
-    box-shadow: var(--shadow-card);
-  ">
-    <span id="homeWeatherIcon" style="font-size: 1.4rem;">🌤️</span>
-    <span style="
-      font-family: var(--font-mono);
-      font-size: 0.85rem;
-      color: var(--color-text);
-      font-weight: 500;
-    " id="homeWeatherText">Mausam load ho raha hai...</span>
-    <span style="flex: 1;"></span>
-    <span style="
-      font-size: 0.78rem;
-      background: rgba(31, 92, 61, 0.1);
-      color: var(--color-primary);
-      padding: 0.3rem 0.8rem;
-      border-radius: 999px;
-      font-weight: 600;
-      border: 1px solid rgba(31, 92, 61, 0.2);
-    " id="homeWeatherTip"></span>
-  </div>
-</div>
 
 <section class="features">
   <div class="container">
@@ -174,95 +116,90 @@
 </footer>
 
 <script src="js/config.js"></script>
-<script>
-  // ✅ Agar already logged in hai — dashboard pe bhejo
-  document.addEventListener('DOMContentLoaded', () => {
-    const token = getToken();
-    if (token) {
-      // Token expiry check karo
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        const isExpired = payload.exp && (payload.exp * 1000 < Date.now());
-        if (!isExpired) {
-          window.location.href = 'dashboard.html';
-          return;
-        } else {
-          clearToken();
-        }
-      } catch {
-        clearToken();
-      }
-    }
-  });
-</script>
 <script src="js/utils/tokenStorage.js"></script>
 <script src="js/utils/formatters.js"></script>
 <script src="js/api/priceApi.js"></script>
-<script src="js/components/renderNavbar.js"></script>
 <script src="js/api/weatherApi.js"></script>
+<script src="js/components/renderNavbar.js"></script>
 <script>
-  const heroForm = document.querySelector('.hero__form');
+document.addEventListener('DOMContentLoaded', async () => {
+
+  // ✅ Navbar — agar logged in hai toh Login button ko Dashboard dikhaao
+  const token = getToken();
+  const navBtn = document.getElementById('navLoginBtn');
+  if (token) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const isExpired = payload.exp && (payload.exp * 1000 < Date.now());
+      if (!isExpired && navBtn) {
+        navBtn.textContent = 'Dashboard';
+        navBtn.href = 'dashboard.html';
+      }
+    } catch { /* ignore */ }
+  }
+
+  // Hero form — mandi comparison pe redirect
+  const heroForm = document.getElementById('heroSearchForm');
   if (heroForm) {
     heroForm.addEventListener('submit', function (e) {
       e.preventDefault();
-      const query = this.querySelector('input').value.trim();
+      const query = document.getElementById('heroSearchInput').value.trim();
       if (!query) return;
       window.location.href = `mandi-comparison.html?search=${encodeURIComponent(query)}`;
     });
   }
 
-  function showHomeWeather(w) {
-  if (!w) return;
-  const bar = document.getElementById('homeWeatherBar');
-  if (!bar) return;
-  const iconMap = {
-    '01': '☀️', '02': '⛅', '03': '☁️', '04': '☁️',
-    '09': '🌧️', '10': '🌦️', '11': '⛈️', '13': '❄️', '50': '🌫️'
-  };
-  const code = (w.icon || '01d').substring(0, 2);
-  const icon = document.getElementById('homeWeatherIcon');
-  const text = document.getElementById('homeWeatherText');
-  const tip = document.getElementById('homeWeatherTip');
-  if (icon) icon.textContent = iconMap[code] || '🌤️';
-  if (text) text.textContent = `📍 ${w.city} — ${w.temp}°C, ${w.description} | Humidity: ${w.humidity}%`;
-  if (tip) tip.textContent = w.farmingTip || '';
-  bar.style.display = 'flex';
-}
-
-  document.addEventListener('DOMContentLoaded', async () => {
-    // Ticker load
-    try {
-      const res = await fetch(`${CONFIG.API_BASE_URL}/price/ticker`);
-      if (res.ok) {
-        const prices = await res.json();
-        if (prices && prices.length) {
-          const track = document.querySelector('.ticker__track');
-          if (track) {
-            const items = [...prices, ...prices];
-            track.innerHTML = items.map(p => `
-              <span class="ticker__item">
-                ${p.name_en} / <span class="ticker__hi">${p.name_hi}</span>
-                &#8377;${Math.round(parseFloat(p.price)).toLocaleString('en-IN')}/q
-                <span class="${parseFloat(p.trend) >= 0 ? 'ticker__up' : 'ticker__down'}">
-                  ${parseFloat(p.trend) >= 0 ? '&#9650;' : '&#9660;'}
-                </span>
+  // Dynamic ticker — backend se real prices fetch karo
+  try {
+    const res = await fetch(`${CONFIG.API_BASE_URL}/price/ticker`);
+    if (res.ok) {
+      const prices = await res.json();
+      if (prices && prices.length) {
+        const track = document.querySelector('.ticker__track');
+        if (track) {
+          const items = [...prices, ...prices];
+          track.innerHTML = items.map(p => `
+            <span class="ticker__item">
+              ${p.name_en} / <span class="ticker__hi">${p.name_hi}</span>
+              &#8377;${Math.round(parseFloat(p.price)).toLocaleString('en-IN')}/q
+              <span class="${parseFloat(p.trend) >= 0 ? 'ticker__up' : 'ticker__down'}">
+                ${parseFloat(p.trend) >= 0 ? '&#9650;' : '&#9660;'}
               </span>
-            `).join('');
-          }
+            </span>
+          `).join('');
         }
       }
-    } catch (err) {
-      console.warn('Ticker load fail:', err.message);
     }
+  } catch (err) {
+    console.warn('Ticker load fail:', err.message);
+  }
 
-    // Weather load
-    try {
-      const w = await getSmartWeather();
-      showHomeWeather(w);
-    } catch (err) {
-      console.warn('Weather load fail:', err.message);
-    }
-  });
+  // Weather load
+  function showHomeWeather(w) {
+    if (!w) return;
+    const bar = document.getElementById('homeWeatherBar');
+    if (!bar) return;
+    const iconMap = {
+      '01': '☀️', '02': '⛅', '03': '☁️', '04': '☁️',
+      '09': '🌧️', '10': '🌦️', '11': '⛈️', '13': '❄️', '50': '🌫️'
+    };
+    const code = (w.icon || '01d').substring(0, 2);
+    const icon = document.getElementById('homeWeatherIcon');
+    const text = document.getElementById('homeWeatherText');
+    const tip = document.getElementById('homeWeatherTip');
+    if (icon) icon.textContent = iconMap[code] || '🌤️';
+    if (text) text.textContent = `📍 ${w.city} — ${w.temp}°C, ${w.description} | Humidity: ${w.humidity}%`;
+    if (tip) tip.textContent = w.farmingTip || '';
+    bar.style.display = 'flex';
+  }
+
+  try {
+    const w = await getSmartWeather();
+    showHomeWeather(w);
+  } catch (err) {
+    console.warn('Weather load fail:', err.message);
+  }
+});
 </script>
 </body>
 </html>
