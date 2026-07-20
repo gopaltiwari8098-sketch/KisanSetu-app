@@ -214,8 +214,7 @@ async function triggerSync(req, res) {
     console.error('❌ Background sync error:', err.message);
   });
 }
-
-// Sync status check
+// Sirf ye ek function replace karo poori file mein
 async function getSyncStatus(req, res) {
   try {
     const result = await pool.query(`
@@ -223,16 +222,26 @@ async function getSyncStatus(req, res) {
       FROM prices
       GROUP BY recorded_date
       ORDER BY recorded_date DESC
-      LIMIT 5
+      LIMIT 7
     `);
     const total = await pool.query('SELECT COUNT(*) FROM prices');
     const mandis = await pool.query('SELECT COUNT(*) FROM mandis');
+
+    const latestDay = result.rows[0];
+    // Seed data = exactly mandis × crops (404 × 50 = 20200)
+    // Real Agmarknet = variable, usually 100-5000 per day
+    const isSeedData = parseInt(latestDay?.count || 0) === 20200;
+    const isRealData = !isSeedData && parseInt(latestDay?.count || 0) > 50;
+
     res.json({
       totalPrices: parseInt(total.rows[0].count),
       totalMandis: parseInt(mandis.rows[0].count),
       recentDates: result.rows,
-      latestDate: result.rows[0]?.recorded_date || null,
-      isRealData: result.rows[0]?.count > 1000
+      latestDate: latestDay?.recorded_date || null,
+      latestCount: parseInt(latestDay?.count || 0),
+      isRealData,
+      isSeedData,
+      dataType: isSeedData ? 'Seed Data' : isRealData ? 'Real Agmarknet Data ✅' : 'No Data'
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
