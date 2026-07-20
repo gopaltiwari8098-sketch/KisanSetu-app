@@ -8,42 +8,28 @@ require('dotenv').config();
 
 const app = express();
 
-app.use(cors({
-  origin: true,
-  credentials: true
-}));
-
+app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
-// Session — sirf Google OAuth callback ke liye
-// Production mein MemoryStore warning suppress karo
-const sessionConfig = {
+app.use(session({
   secret: process.env.SESSION_SECRET || 'kisansetu_session_secret',
   resave: false,
   saveUninitialized: false,
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    maxAge: 10 * 60 * 1000 // 10 minutes — sirf OAuth ke liye
+    maxAge: 10 * 60 * 1000
   }
-};
+}));
 
-app.use(session(sessionConfig));
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Root route
 app.get('/', (req, res) => {
-  res.json({
-    app: 'KisanSetu API',
-    version: '1.0.0',
-    status: 'running',
-    health: '/api/health'
-  });
+  res.json({ app: 'KisanSetu API', version: '1.0.0', status: 'running' });
 });
 
-// Health check
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
@@ -63,11 +49,8 @@ app.get('/api/db-check', async (req, res) => {
   }
 });
 
-app.get('/api/docs', (req, res) => {
-  res.json(require('./docs/swagger'));
-});
+app.get('/api/docs', (req, res) => res.json(require('./docs/swagger')));
 
-// All routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/farmer', require('./routes/farmerRoutes'));
 app.use('/api/price', require('./routes/priceRoutes'));
@@ -75,13 +58,12 @@ app.use('/api/mandi', require('./routes/mandiRoutes'));
 app.use('/api/scheme', require('./routes/schemeRoutes'));
 app.use('/api/alert', require('./routes/alertRoutes'));
 app.use('/api/weather', require('./routes/weatherRoutes'));
+app.use('/api/admin', require('./routes/adminRoutes'));
 
-// Cron jobs
 require('./jobs/dailyPriceSync');
 require('./jobs/alertDispatcher');
 console.log('Cron jobs scheduled (Price sync: 6 AM, Alert check: every 6h IST)');
 
-// Global error handler
 app.use(errorHandler);
 
 module.exports = app;

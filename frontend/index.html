@@ -23,14 +23,14 @@
     <li><a href="price-trends.html">Price Trends</a></li>
     <li><a href="schemes.html">Schemes</a></li>
   </ul>
-  <a href="login.html" class="navbar__cta" id="navLoginBtn">Login</a>
+  <a href="login.html" class="navbar__cta" id="navCtaBtn">Login</a>
   <button class="navbar__menu-toggle" aria-label="Menu">&#9776;</button>
 </nav>
 
 <section class="hero">
   <div class="container">
 
-    <div class="container" style="margin-bottom: var(--space-sm); margin-top: var(--space-sm);">
+    <div style="margin-bottom: var(--space-sm); margin-top: var(--space-sm);">
       <div id="homeWeatherBar" style="
         display: none;
         background: var(--color-surface);
@@ -122,23 +122,45 @@
 <script src="js/api/weatherApi.js"></script>
 <script src="js/components/renderNavbar.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', async () => {
+const ADMIN_EMAIL = 'gopaltiwari08@gmail.com';
 
-  // ✅ Navbar — agar logged in hai toh Login button ko Dashboard dikhaao
+document.addEventListener('DOMContentLoaded', async () => {
   const token = getToken();
-  const navBtn = document.getElementById('navLoginBtn');
+  const navCtaBtn = document.getElementById('navCtaBtn');
+
   if (token) {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
       const isExpired = payload.exp && (payload.exp * 1000 < Date.now());
-      if (!isExpired && navBtn) {
-        navBtn.textContent = 'Dashboard';
-        navBtn.href = 'dashboard.html';
+      if (!isExpired) {
+        // ✅ Profile dikhaao, Dashboard nahi
+        if (navCtaBtn) {
+          navCtaBtn.textContent = 'Profile';
+          navCtaBtn.href = 'profile.html';
+        }
+
+        // ✅ Admin check — sirf owner ke liye admin link show karo
+        try {
+          const profileRes = await fetch(`${CONFIG.API_BASE_URL}/farmer/profile`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (profileRes.ok) {
+            const profile = await profileRes.json();
+            if (profile.email === ADMIN_EMAIL) {
+              const adminLink = document.createElement('li');
+              adminLink.innerHTML = '<a href="admin.html" style="color: var(--color-accent);">⚙️ Admin</a>';
+              document.querySelector('.navbar__links').appendChild(adminLink);
+            }
+          }
+        } catch { /* ignore */ }
+
+      } else {
+        clearToken();
       }
-    } catch { /* ignore */ }
+    } catch { clearToken(); }
   }
 
-  // Hero form — mandi comparison pe redirect
+  // Hero form
   const heroForm = document.getElementById('heroSearchForm');
   if (heroForm) {
     heroForm.addEventListener('submit', function (e) {
@@ -149,7 +171,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Dynamic ticker — backend se real prices fetch karo
+  // Dynamic ticker
   try {
     const res = await fetch(`${CONFIG.API_BASE_URL}/price/ticker`);
     if (res.ok) {
@@ -170,35 +192,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       }
     }
-  } catch (err) {
-    console.warn('Ticker load fail:', err.message);
-  }
+  } catch (err) { console.warn('Ticker fail:', err.message); }
 
-  // Weather load
+  // Weather
   function showHomeWeather(w) {
     if (!w) return;
     const bar = document.getElementById('homeWeatherBar');
     if (!bar) return;
-    const iconMap = {
-      '01': '☀️', '02': '⛅', '03': '☁️', '04': '☁️',
-      '09': '🌧️', '10': '🌦️', '11': '⛈️', '13': '❄️', '50': '🌫️'
-    };
+    const iconMap = {'01':'☀️','02':'⛅','03':'☁️','04':'☁️','09':'🌧️','10':'🌦️','11':'⛈️','13':'❄️','50':'🌫️'};
     const code = (w.icon || '01d').substring(0, 2);
-    const icon = document.getElementById('homeWeatherIcon');
-    const text = document.getElementById('homeWeatherText');
-    const tip = document.getElementById('homeWeatherTip');
-    if (icon) icon.textContent = iconMap[code] || '🌤️';
-    if (text) text.textContent = `📍 ${w.city} — ${w.temp}°C, ${w.description} | Humidity: ${w.humidity}%`;
-    if (tip) tip.textContent = w.farmingTip || '';
+    document.getElementById('homeWeatherIcon').textContent = iconMap[code] || '🌤️';
+    document.getElementById('homeWeatherText').textContent = `📍 ${w.city} — ${w.temp}°C, ${w.description} | Humidity: ${w.humidity}%`;
+    document.getElementById('homeWeatherTip').textContent = w.farmingTip || '';
     bar.style.display = 'flex';
   }
-
   try {
     const w = await getSmartWeather();
     showHomeWeather(w);
-  } catch (err) {
-    console.warn('Weather load fail:', err.message);
-  }
+  } catch (err) { console.warn('Weather fail:', err.message); }
 });
 </script>
 </body>

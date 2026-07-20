@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel - KisanSetu</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%BE%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/navbar.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/dashboard.css">
+<link rel="stylesheet" href="css/animations.css">
+<link rel="stylesheet" href="css/responsive.css">
+<style>
+.admin-page { padding: var(--space-lg) 0 var(--space-xl); }
+.admin-header { margin-bottom: var(--space-lg); }
+.admin-header h1 { font-family: var(--font-display); font-size: 1.8rem; color: var(--color-primary-dark); }
+.admin-header p { color: var(--color-text-muted); font-size: 0.9rem; margin-top: 0.3rem; }
+.admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-sm); margin-bottom: var(--space-lg); }
+.admin-stat { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: var(--space-md); box-shadow: var(--shadow-card); text-align: center; transition: transform 0.2s ease, border-color 0.2s ease; }
+.admin-stat:hover { transform: translateY(-4px); border-color: var(--color-accent); }
+.admin-stat__icon { font-size: 1.8rem; margin-bottom: 0.4rem; }
+.admin-stat__value { font-family: var(--font-mono); font-size: 1.8rem; font-weight: 700; color: var(--color-primary-dark); }
+.admin-stat__label { font-size: 0.8rem; color: var(--color-text-muted); margin-top: 0.2rem; }
+.admin-stat--green .admin-stat__value { color: var(--color-success); }
+.admin-stat--orange .admin-stat__value { color: var(--color-accent-dark); }
+.admin-stat--red .admin-stat__value { color: var(--color-danger); }
+.admin-panels { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); margin-bottom: var(--space-lg); }
+@media (max-width: 900px) { .admin-panels { grid-template-columns: 1fr; } }
+.sync-day { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid var(--color-border); font-size: 0.85rem; }
+.sync-day:last-child { border-bottom: none; }
+.sync-bar { height: 6px; background: var(--color-primary); border-radius: 3px; margin-top: 4px; transition: width 0.5s ease; }
+.user-row { display: flex; align-items: center; gap: var(--space-sm); padding: 0.6rem 0; border-bottom: 1px solid var(--color-border); font-size: 0.85rem; }
+.user-row:last-child { border-bottom: none; }
+.user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--color-primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; }
+.user-name { font-weight: 600; color: var(--color-text); }
+.user-meta { font-size: 0.75rem; color: var(--color-text-muted); }
+.verified-badge { font-size: 0.65rem; padding: 0.15rem 0.4rem; border-radius: 4px; font-weight: 700; }
+.verified-badge--yes { background: rgba(46,125,79,0.12); color: var(--color-success); }
+.verified-badge--no { background: rgba(192,57,43,0.12); color: var(--color-danger); }
+.server-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-sm); }
+.server-item { background: var(--color-bg); border-radius: 6px; padding: 0.6rem 0.8rem; }
+.server-item__label { font-size: 0.72rem; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.04em; font-family: var(--font-mono); }
+.server-item__value { font-family: var(--font-mono); font-size: 1rem; font-weight: 600; color: var(--color-primary-dark); margin-top: 0.2rem; }
+.sync-btn { background: var(--color-primary); color: #fff; border: none; padding: 0.7rem 1.4rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; font-size: 0.9rem; transition: background 0.2s ease, transform 0.2s ease; }
+.sync-btn:hover { background: var(--color-accent); transform: scale(1.03); }
+.sync-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+.status-dot--green { background: var(--color-success); box-shadow: 0 0 6px var(--color-success); }
+.status-dot--red { background: var(--color-danger); }
+.refresh-time { font-size: 0.75rem; color: var(--color-text-muted); font-family: var(--font-mono); }
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="index.html" class="navbar__logo">Kisan<span>Setu</span></a>
+  <ul class="navbar__links">
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="mandi-comparison.html">Mandi Comparison</a></li>
+    <li><a href="admin.html" style="color:var(--color-accent);">⚙️ Admin</a></li>
+  </ul>
+  <a href="profile.html" class="navbar__cta">Profile</a>
+  <button class="navbar__menu-toggle" aria-label="Menu">&#9776;</button>
+</nav>
+
+<section class="admin-page">
+  <div class="container">
+
+    <div class="admin-header">
+      <h1>⚙️ Admin Panel</h1>
+      <p id="lastRefresh" class="refresh-time">Loading...</p>
+    </div>
+
+    <!-- Access Denied Message (hidden by default) -->
+    <div id="accessDenied" style="display:none; text-align:center; padding: var(--space-xl) 0;">
+      <p style="font-size: 2rem;">🔒</p>
+      <p style="font-size: 1.2rem; color: var(--color-danger); font-weight: 600;">Access Denied</p>
+      <p style="color: var(--color-text-muted);">Ye page sirf admin ke liye hai.</p>
+      <a href="index.html" style="color: var(--color-primary); font-weight: 600;">← Home pe jao</a>
+    </div>
+
+    <!-- Admin Content -->
+    <div id="adminContent" style="display:none;">
+
+      <!-- Stat Cards -->
+      <div class="admin-grid">
+        <div class="admin-stat admin-stat--green">
+          <div class="admin-stat__icon">👥</div>
+          <div class="admin-stat__value" id="statTotalUsers">—</div>
+          <div class="admin-stat__label">Total Users</div>
+        </div>
+        <div class="admin-stat admin-stat--green">
+          <div class="admin-stat__icon">✅</div>
+          <div class="admin-stat__value" id="statVerifiedUsers">—</div>
+          <div class="admin-stat__label">Verified Users</div>
+        </div>
+        <div class="admin-stat">
+          <div class="admin-stat__icon">🏪</div>
+          <div class="admin-stat__value" id="statMandis">—</div>
+          <div class="admin-stat__label">Total Mandis</div>
+        </div>
+        <div class="admin-stat">
+          <div class="admin-stat__icon">🌾</div>
+          <div class="admin-stat__value" id="statCrops">—</div>
+          <div class="admin-stat__label">Total Crops</div>
+        </div>
+        <div class="admin-stat admin-stat--orange">
+          <div class="admin-stat__icon">📊</div>
+          <div class="admin-stat__value" id="statTodayPrices">—</div>
+          <div class="admin-stat__label">Aaj ke Prices</div>
+        </div>
+        <div class="admin-stat">
+          <div class="admin-stat__icon">🔔</div>
+          <div class="admin-stat__value" id="statAlerts">—</div>
+          <div class="admin-stat__label">Active Alerts</div>
+        </div>
+        <div class="admin-stat">
+          <div class="admin-stat__icon">📱</div>
+          <div class="admin-stat__value" id="statPushSubs">—</div>
+          <div class="admin-stat__label">Push Subscribers</div>
+        </div>
+        <div class="admin-stat admin-stat--green">
+          <div class="admin-stat__icon">⚡</div>
+          <div class="admin-stat__value" id="statUptime">—</div>
+          <div class="admin-stat__label">Server Uptime</div>
+        </div>
+      </div>
+
+      <!-- Middle Panels -->
+      <div class="admin-panels">
+
+        <!-- Sync History -->
+        <div class="panel">
+          <div class="panel__header">
+            <h2 class="panel__title">📅 Last 7 Days Sync</h2>
+            <button class="sync-btn" id="syncBtn">🔄 Sync Now</button>
+          </div>
+          <div id="syncStatus" style="margin-bottom: var(--space-sm); font-size: 0.85rem; color: var(--color-text-muted);"></div>
+          <div id="syncHistory">Loading...</div>
+        </div>
+
+        <!-- Server Info -->
+        <div class="panel">
+          <div class="panel__header">
+            <h2 class="panel__title">🖥️ Server Status</h2>
+            <span id="serverStatusDot"><span class="status-dot status-dot--green"></span> Live</span>
+          </div>
+          <div class="server-grid" id="serverGrid">
+            <div class="server-item"><div class="server-item__label">Node Version</div><div class="server-item__value" id="serverNode">—</div></div>
+            <div class="server-item"><div class="server-item__label">Memory</div><div class="server-item__value" id="serverMemory">—</div></div>
+            <div class="server-item"><div class="server-item__label">Uptime</div><div class="server-item__value" id="serverUptime">—</div></div>
+            <div class="server-item"><div class="server-item__label">Data Status</div><div class="server-item__value" id="serverDataStatus">—</div></div>
+          </div>
+          <div style="margin-top: var(--space-md);">
+            <p class="panel__title" style="font-size: 0.95rem; margin-bottom: 0.5rem;">Quick Links</p>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+              <a href="https://kisansetu-app.onrender.com/api/health" target="_blank" style="font-size: 0.8rem; color: var(--color-primary); text-decoration: none; background: var(--color-bg); padding: 0.3rem 0.7rem; border-radius: 6px; border: 1px solid var(--color-border);">Health Check</a>
+              <a href="https://kisansetu-app.onrender.com/api/price/sync-status" target="_blank" style="font-size: 0.8rem; color: var(--color-primary); text-decoration: none; background: var(--color-bg); padding: 0.3rem 0.7rem; border-radius: 6px; border: 1px solid var(--color-border);">Sync Status</a>
+              <a href="https://dashboard.render.com" target="_blank" style="font-size: 0.8rem; color: var(--color-primary); text-decoration: none; background: var(--color-bg); padding: 0.3rem 0.7rem; border-radius: 6px; border: 1px solid var(--color-border);">Render Dashboard</a>
+              <a href="https://console.neon.tech" target="_blank" style="font-size: 0.8rem; color: var(--color-primary); text-decoration: none; background: var(--color-bg); padding: 0.3rem 0.7rem; border-radius: 6px; border: 1px solid var(--color-border);">Neon DB</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Recent Users -->
+      <div class="panel">
+        <div class="panel__header">
+          <h2 class="panel__title">👥 Recent Users (Last 10)</h2>
+        </div>
+        <div id="recentUsers">Loading...</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<script src="js/config.js"></script>
+<script src="js/utils/tokenStorage.js"></script>
+<script src="js/utils/formatters.js"></script>
+<script src="js/components/renderNavbar.js"></script>
+<script>
+const ADMIN_EMAIL = 'gopaltiwari08@gmail.com';
+
+async function loadAdminStats() {
+  const token = getToken();
+  if (!token) {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  try {
+    const res = await fetch(`${CONFIG.API_BASE_URL}/admin/stats`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    if (res.status === 403) {
+      document.getElementById('accessDenied').style.display = 'block';
+      return;
+    }
+
+    if (!res.ok) throw new Error('Stats fetch fail');
+    const data = await res.json();
+
+    document.getElementById('adminContent').style.display = 'block';
+    document.getElementById('lastRefresh').textContent =
+      `Last updated: ${new Date().toLocaleTimeString('en-IN')}`;
+
+    // Stat cards
+    document.getElementById('statTotalUsers').textContent = data.users.total;
+    document.getElementById('statVerifiedUsers').textContent = data.users.verified;
+    document.getElementById('statMandis').textContent = data.data.totalMandis;
+    document.getElementById('statCrops').textContent = data.data.totalCrops;
+    document.getElementById('statTodayPrices').textContent =
+      (data.sync.todayCount || 0).toLocaleString('en-IN');
+    document.getElementById('statAlerts').textContent = data.data.totalAlerts;
+    document.getElementById('statPushSubs').textContent = data.data.pushSubscribers;
+    document.getElementById('statUptime').textContent = data.server.uptimeFormatted;
+
+    // Server info
+    document.getElementById('serverNode').textContent = data.server.nodeVersion;
+    document.getElementById('serverMemory').textContent = data.server.memoryMB + ' MB';
+    document.getElementById('serverUptime').textContent = data.server.uptimeFormatted;
+    document.getElementById('serverDataStatus').textContent =
+      data.sync.isRealData ? '✅ Real' : '⚠️ Seed';
+
+    // Sync status
+    const syncStatusEl = document.getElementById('syncStatus');
+    const latestDate = data.sync.latestDate
+      ? new Date(data.sync.latestDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+      : 'No data';
+    syncStatusEl.innerHTML = `
+      <span class="status-dot ${data.sync.isRealData ? 'status-dot--green' : 'status-dot--red'}"></span>
+      Latest: <strong>${latestDate}</strong> &nbsp;|&nbsp;
+      Today: <strong>${(data.sync.todayCount || 0).toLocaleString('en-IN')} prices</strong>
+    `;
+
+    // Sync history chart
+    const maxCount = Math.max(...data.sync.last7Days.map(d => d.count), 1);
+    const syncHtml = data.sync.last7Days.map(day => {
+      const date = new Date(day.date);
+      const label = date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+      const widthPct = Math.round((day.count / maxCount) * 100);
+      return `
+        <div class="sync-day">
+          <div style="flex:1;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+              <span>${label}</span>
+              <span style="font-family:var(--font-mono);font-weight:600;">${day.count.toLocaleString('en-IN')}</span>
+            </div>
+            <div style="background:var(--color-border);border-radius:3px;height:6px;">
+              <div class="sync-bar" style="width:${widthPct}%;"></div>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+    document.getElementById('syncHistory').innerHTML = syncHtml || '<p style="color:var(--color-text-muted);font-size:0.85rem;">No sync history</p>';
+
+    // Recent users
+    const usersHtml = data.users.recent.map(u => `
+      <div class="user-row">
+        <div class="user-avatar">${(u.full_name || '?').charAt(0).toUpperCase()}</div>
+        <div style="flex:1;">
+          <div class="user-name">${u.full_name || 'Naam nahi'}</div>
+          <div class="user-meta">${u.email} &nbsp;|&nbsp; ${u.state || 'State nahi'}</div>
+        </div>
+        <span class="verified-badge ${u.is_verified ? 'verified-badge--yes' : 'verified-badge--no'}">
+          ${u.is_verified ? '✓ Verified' : 'Unverified'}
+        </span>
+        <span style="font-size:0.72rem;color:var(--color-text-muted);margin-left:8px;">
+          ${new Date(u.created_at).toLocaleDateString('en-IN')}
+        </span>
+      </div>
+    `).join('');
+    document.getElementById('recentUsers').innerHTML = usersHtml;
+
+  } catch (err) {
+    console.error('Admin stats error:', err.message);
+    document.getElementById('adminContent').style.display = 'block';
+    document.getElementById('lastRefresh').textContent = 'Error: ' + err.message;
+  }
+}
+
+// Sync button
+document.getElementById('syncBtn')?.addEventListener('click', async function () {
+  const btn = this;
+  btn.disabled = true;
+  btn.textContent = '⏳ Syncing...';
+
+  const token = getToken();
+  try {
+    await fetch(`${CONFIG.API_BASE_URL}/admin/sync`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    btn.textContent = '✅ Started!';
+    setTimeout(() => {
+      btn.textContent = '🔄 Sync Now';
+      btn.disabled = false;
+      loadAdminStats(); // Refresh stats
+    }, 3000);
+  } catch (err) {
+    btn.textContent = '❌ Failed';
+    btn.disabled = false;
+  }
+});
+
+// Load on start
+document.addEventListener('DOMContentLoaded', loadAdminStats);
+
+// Auto-refresh every 60 seconds
+setInterval(loadAdminStats, 60000);
+</script>
+</body>
+</html>
