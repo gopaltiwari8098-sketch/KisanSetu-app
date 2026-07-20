@@ -1,6 +1,6 @@
 const pool = require('../config/db');
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'gopaltiwari08@gmail.com';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'gopaltiwari8098@gmail.com';
 
 // Admin check middleware
 async function isAdmin(req, res, next) {
