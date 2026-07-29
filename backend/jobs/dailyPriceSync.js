@@ -3,63 +3,57 @@ const pool = require('../config/db');
 const logger = require('../utils/logger');
 
 async function runDailySync() {
-  logger.info('[SYNC] === Daily Agmarknet Sync Start ===');
-
+  logger.info('[SYNC] === Agmarknet Sync Start ===');
   try {
     const { runDailySync: agmarknetSync } = require('../services/agmarknetService');
     const count = await agmarknetSync();
-
     if (count > 0) {
-      logger.info(`[SYNC] ✅ Success: ${count} real prices synced`);
+      logger.info(`[SYNC] ✅ ${count} real prices synced`);
     } else {
-      logger.warn('[SYNC] ⚠️ Agmarknet returned 0 records today — keeping last available data');
-      // ❌ Seed data NAHI dalenge — purana real data serve hota rahega
+      logger.warn('[SYNC] ⚠️ 0 records — keeping last available data');
     }
-
     return count;
   } catch (err) {
-    logger.error('[SYNC] ❌ Sync error:', err.message);
+    logger.error('[SYNC] Error:', err.message);
     return 0;
   }
 }
 
 async function syncIfNeeded() {
   try {
-    // Check karo kya aaj ka data already hai
     const todayResult = await pool.query(
       "SELECT COUNT(*) FROM prices WHERE recorded_date = CURRENT_DATE"
     );
     const todayCount = parseInt(todayResult.rows[0].count);
 
-    if (todayCount > 0) {
+    if (todayCount > 500) {
       logger.info(`[SYNC] Aaj ke ${todayCount} records already hain — skip`);
       return;
     }
 
-    // Check karo kya DB mein koi bhi data hai
-    const totalResult = await pool.query("SELECT COUNT(*) FROM prices");
-    const totalCount = parseInt(totalResult.rows[0].count);
-
-    if (totalCount === 0) {
-      logger.warn('[SYNC] DB empty hai — koi data nahi');
-      // Pehli baar setup ke liye manually seed karo
-      return;
-    }
-
-    // Aaj ka data nahi hai lekin purana data hai
-    // Agmarknet se try karo
-    logger.info('[SYNC] Aaj ka data nahi — Agmarknet sync try kar rahe hain...');
+    logger.info(`[SYNC] Aaj ke sirf ${todayCount} records — sync try kar rahe hain...`);
     await runDailySync();
-
   } catch (err) {
     logger.error('[SYNC] syncIfNeeded error:', err.message);
   }
 }
 
-// Roz 6 AM IST (12:30 AM UTC)
+// 6 AM IST (00:30 UTC)
 cron.schedule('30 0 * * *', async () => {
-  logger.info('[SYNC] Scheduled sync starting...');
+  logger.info('[SYNC] 6 AM IST scheduled sync...');
   await runDailySync();
+}, { timezone: 'Asia/Kolkata' });
+
+// 12 PM IST (06:30 UTC) — Agmarknet afternoon data
+cron.schedule('30 6 * * *', async () => {
+  logger.info('[SYNC] 12 PM IST sync check...');
+  await syncIfNeeded();
+}, { timezone: 'Asia/Kolkata' });
+
+// 6 PM IST (12:30 UTC) — Evening final check
+cron.schedule('30 12 * * *', async () => {
+  logger.info('[SYNC] 6 PM IST sync check...');
+  await syncIfNeeded();
 }, { timezone: 'Asia/Kolkata' });
 
 // Server start ke 10 second baad check
