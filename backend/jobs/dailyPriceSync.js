@@ -10,7 +10,7 @@ async function runDailySync() {
     if (count > 0) {
       logger.info(`[SYNC] ✅ ${count} real prices synced`);
     } else {
-      logger.warn('[SYNC] ⚠️ 0 records — keeping last available data');
+      logger.warn('[SYNC] ⚠️ 0 records today — last available data serve hoga');
     }
     return count;
   } catch (err) {
@@ -21,42 +21,42 @@ async function runDailySync() {
 
 async function syncIfNeeded() {
   try {
-    const todayResult = await pool.query(
+    const result = await pool.query(
       "SELECT COUNT(*) FROM prices WHERE recorded_date = CURRENT_DATE"
     );
-    const todayCount = parseInt(todayResult.rows[0].count);
+    const todayCount = parseInt(result.rows[0].count);
 
     if (todayCount > 500) {
-      logger.info(`[SYNC] Aaj ke ${todayCount} records already hain — skip`);
-      return;
+      logger.info(`[SYNC] Aaj ke ${todayCount} records hain — sync skip`);
+      return 0;
     }
 
-    logger.info(`[SYNC] Aaj ke sirf ${todayCount} records — sync try kar rahe hain...`);
-    await runDailySync();
+    logger.info(`[SYNC] Aaj ke sirf ${todayCount} records — syncing...`);
+    return await runDailySync();
   } catch (err) {
     logger.error('[SYNC] syncIfNeeded error:', err.message);
+    return 0;
   }
 }
 
-// 6 AM IST (00:30 UTC)
-cron.schedule('30 0 * * *', async () => {
-  logger.info('[SYNC] 6 AM IST scheduled sync...');
-  await runDailySync();
+// Internal backup cron (6 AM, 12 PM, 6 PM IST)
+// External cron-job.org bhi same kaam karega — double safety
+cron.schedule('30 0 * * 1-6', () => {
+  logger.info('[SYNC] Internal cron 6 AM IST...');
+  runDailySync();
 }, { timezone: 'Asia/Kolkata' });
 
-// 12 PM IST (06:30 UTC) — Agmarknet afternoon data
-cron.schedule('30 6 * * *', async () => {
-  logger.info('[SYNC] 12 PM IST sync check...');
-  await syncIfNeeded();
+cron.schedule('30 6 * * 1-6', () => {
+  logger.info('[SYNC] Internal cron 12 PM IST...');
+  syncIfNeeded();
 }, { timezone: 'Asia/Kolkata' });
 
-// 6 PM IST (12:30 UTC) — Evening final check
-cron.schedule('30 12 * * *', async () => {
-  logger.info('[SYNC] 6 PM IST sync check...');
-  await syncIfNeeded();
+cron.schedule('30 12 * * 1-6', () => {
+  logger.info('[SYNC] Internal cron 6 PM IST...');
+  syncIfNeeded();
 }, { timezone: 'Asia/Kolkata' });
 
-// Server start ke 10 second baad check
+// Server start pe 10 sec baad check
 setTimeout(syncIfNeeded, 10000);
 
 module.exports = { triggerManualSync: runDailySync };
