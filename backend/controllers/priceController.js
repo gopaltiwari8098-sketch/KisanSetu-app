@@ -198,56 +198,43 @@ async function getTickerData(req, res) {
   }
 }
 
-// ✅ FIRE AND FORGET — timeout issue fix
 async function triggerSync(req, res) {
-  // Turant respond karo
-  res.json({
-    message: 'Sync background mein shuru ho gayi hai. 2-3 minute mein complete hogi.',
-    checkUrl: '/api/price/sync-status'
-  });
-
-  // Background mein sync chalaao (await mat karo)
-  const { runDailySync } = require('../services/agmarknetService');
-  runDailySync().then(count => {
-    console.log(`✅ Background sync complete: ${count} records`);
-  }).catch(err => {
-    console.error('❌ Background sync error:', err.message);
-  });
-}
-// Sirf ye ek function replace karo poori file mein
-async function getSyncStatus(req, res) {
   try {
-    const result = await pool.query(`
-      SELECT recorded_date, COUNT(*) as count
-      FROM prices
-      GROUP BY recorded_date
-      ORDER BY recorded_date DESC
-      LIMIT 7
-    `);
-    const total = await pool.query('SELECT COUNT(*) FROM prices');
-    const mandis = await pool.query('SELECT COUNT(*) FROM mandis');
+    // Pehle check karo aaj ka data already hai kya
+    const todayCheck = await pool.query(
+      "SELECT COUNT(*) as cnt FROM prices WHERE recorded_date = CURRENT_DATE"
+    );
+    const todayCount = parseInt(todayCheck.rows[0].cnt);
 
-    const latestDay = result.rows[0];
-    // Seed data = exactly mandis × crops (404 × 50 = 20200)
-    // Real Agmarknet = variable, usually 100-5000 per day
-    const isSeedData = parseInt(latestDay?.count || 0) === 20200;
-    const isRealData = !isSeedData && parseInt(latestDay?.count || 0) > 50;
+    // Agar aaj ke 500+ records hain — skip (already synced)
+    if (todayCount > 500) {
+      return res.json({
+        message: `Already synced today. ${todayCount} records hain.`,
+        skipped: true,
+        todayCount,
+        isRealData: true
+      });
+    }
 
+    // Background mein sync karo
     res.json({
-      totalPrices: parseInt(total.rows[0].count),
-      totalMandis: parseInt(mandis.rows[0].count),
-      recentDates: result.rows,
-      latestDate: latestDay?.recorded_date || null,
-      latestCount: parseInt(latestDay?.count || 0),
-      isRealData,
-      isSeedData,
-      dataType: isSeedData ? 'Seed Data' : isRealData ? 'Real Agmarknet Data ✅' : 'No Data'
+      message: `Sync shuru ho gayi (aaj ke sirf ${todayCount} records the). 3-4 minute mein complete hogi.`,
+      todayCountBefore: todayCount
     });
+
+    // Fire and forget
+    const { runDailySync } = require('../services/agmarknetService');
+    runDailySync().then(count => {
+      console.log(`[SYNC] Complete: ${count} records added. Total aaj: ${todayCount + count}`);
+    }).catch(err => {
+      console.error('[SYNC] Error:', err.message);
+    });
+
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error('triggerSync error:', err.message);
+    res.status(500).json({ message: 'Sync fail: ' + err.message });
   }
 }
-
 // Debug: sirf ek state test karo
 async function testSyncOneState(req, res) {
   try {
