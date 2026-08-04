@@ -189,7 +189,8 @@ async function getTickerData(req, res) {
       GROUP BY c.name_en, c.name_hi ORDER BY c.name_en
     `);
     res.json(result.rows.map(r => ({
-      name_en: r.name_en, name_hi: r.name_hi,
+      name_en: r.name_en,
+      name_hi: r.name_hi,
       price: parseFloat(r.price).toFixed(2),
       trend: (Math.random() * 10 - 5).toFixed(1)
     })));
@@ -198,15 +199,58 @@ async function getTickerData(req, res) {
   }
 }
 
+async function getSyncStatus(req, res) {
+  try {
+    const result = await pool.query(`
+      SELECT recorded_date, COUNT(*) as count
+      FROM prices
+      GROUP BY recorded_date
+      ORDER BY recorded_date DESC
+      LIMIT 7
+    `);
+    const total = await pool.query('SELECT COUNT(*) FROM prices');
+    const mandis = await pool.query('SELECT COUNT(*) FROM mandis');
+    const latestDay = result.rows[0];
+    const isSeedData = parseInt(latestDay?.count || 0) === 20200;
+    const isRealData = !isSeedData && parseInt(latestDay?.count || 0) > 50;
+    res.json({
+      totalPrices: parseInt(total.rows[0].count),
+      totalMandis: parseInt(mandis.rows[0].count),
+      recentDates: result.rows,
+      latestDate: latestDay?.recorded_date || null,
+      latestCount: parseInt(latestDay?.count || 0),
+      isRealData,
+      isSeedData,
+      dataType: isSeedData ? 'Seed Data' : isRealData ? 'Real Agmarknet Data ✅' : 'No Data'
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
+async function testSyncOneState(req, res) {
+  try {
+    const { fetchFromAgmarknet } = require('../services/agmarknetService');
+    const state = req.query.state || 'Andhra Pradesh';
+    const records = await fetchFromAgmarknet(state, 5);
+    res.json({
+      state,
+      recordsFetched: records.length,
+      sampleRecord: records[0] || null,
+      message: records.length > 0 ? `✅ API working! ${records.length} records fetched.` : '❌ No records'
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
 async function triggerSync(req, res) {
   try {
-    // Pehle check karo aaj ka data already hai kya
     const todayCheck = await pool.query(
       "SELECT COUNT(*) as cnt FROM prices WHERE recorded_date = CURRENT_DATE"
     );
     const todayCount = parseInt(todayCheck.rows[0].cnt);
 
-    // Agar aaj ke 500+ records hain — skip (already synced)
     if (todayCount > 500) {
       return res.json({
         message: `Already synced today. ${todayCount} records hain.`,
@@ -216,16 +260,14 @@ async function triggerSync(req, res) {
       });
     }
 
-    // Background mein sync karo
     res.json({
       message: `Sync shuru ho gayi (aaj ke sirf ${todayCount} records the). 3-4 minute mein complete hogi.`,
       todayCountBefore: todayCount
     });
 
-    // Fire and forget
     const { runDailySync } = require('../services/agmarknetService');
     runDailySync().then(count => {
-      console.log(`[SYNC] Complete: ${count} records added. Total aaj: ${todayCount + count}`);
+      console.log(`[SYNC] Complete: ${count} new records. Total today: ${todayCount + count}`);
     }).catch(err => {
       console.error('[SYNC] Error:', err.message);
     });
@@ -235,42 +277,8 @@ async function triggerSync(req, res) {
     res.status(500).json({ message: 'Sync fail: ' + err.message });
   }
 }
-// Debug: sirf ek state test karo
-async function testSyncOneState(req, res) {
-  try {
-    const { fetchFromAgmarknet } = require('../services/agmarknetService');
-    const state = req.query.state || 'Andhra Pradesh';
-    console.log(`Testing sync for: ${state}`);
 
-    const records = await fetchFromAgmarknet(state, 10);
-
-    if (!records.length) {
-      return res.json({ state, recordsFetched: 0, error: 'API se koi records nahi aaye' });
-    }
-
-    // Ek record manually insert karo test ke liye
-    const sampleRecord = records[0];
-    const commodity = sampleRecord.commodity || '';
-    const market = sampleRecord.market || '';
-    const modalPrice = parseFloat(sampleRecord.modal_price || 0);
-
-    res.json({
-      state,
-      recordsFetched: records.length,
-      sampleRecord,
-      commodity,
-      market,
-      modalPrice,
-      mandiNameToInsert: `${market} Mandi`,
-      message: records.length > 0
-        ? `✅ API working! ${records.length} records fetched. Full sync trigger karo.`
-        : '❌ No records'
-    });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-}
-
+// ✅ Saare functions export karo — yahi error ki wajah thi
 module.exports = {
   getDashboardSummary,
   getMandiPrices,
@@ -278,7 +286,7 @@ module.exports = {
   getAllPrices,
   getCropsList,
   getTickerData,
-  triggerSync,
   getSyncStatus,
-  testSyncOneState
+  testSyncOneState,
+  triggerSync
 };
