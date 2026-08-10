@@ -148,14 +148,29 @@ async function syncPricesToDB(records, stateName) {
       );
       if (!cropResult.rows.length) { skippedNoCrop++; continue; }
 
-      // Price upsert
-      await pool.query(
-        `INSERT INTO prices (mandi_id, crop_id, price, recorded_date)
-         VALUES ($1, $2, $3, CURRENT_DATE)
-         ON CONFLICT (mandi_id, crop_id, recorded_date)
-         DO UPDATE SET price = EXCLUDED.price`,
-        [mandiId, cropResult.rows[0].id, modalPrice]
-      );
+     // Agmarknet ka actual arrival_date parse karo
+let recordedDate = new Date();
+try {
+  const raw = record.arrival_date || '';
+  if (raw) {
+    const parts = raw.split('/');
+    if (parts.length === 3) {
+      // Format: DD/MM/YYYY
+      recordedDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+      if (isNaN(recordedDate.getTime())) recordedDate = new Date();
+    }
+  }
+} catch { recordedDate = new Date(); }
+
+const dateStr = recordedDate.toISOString().split('T')[0];
+
+await pool.query(
+  `INSERT INTO prices (mandi_id, crop_id, price, recorded_date)
+   VALUES ($1, $2, $3, $4)
+   ON CONFLICT (mandi_id, crop_id, recorded_date)
+   DO UPDATE SET price = EXCLUDED.price`,
+  [mandiId, cropId, modalPrice, dateStr]
+);
       synced++;
 
     } catch (err) {

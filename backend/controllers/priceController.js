@@ -246,32 +246,18 @@ async function testSyncOneState(req, res) {
 
 async function triggerSync(req, res) {
   try {
-    const todayCheck = await pool.query(
-      "SELECT COUNT(*) as cnt FROM prices WHERE recorded_date = CURRENT_DATE"
-    );
-    const todayCount = parseInt(todayCheck.rows[0].cnt);
-
-    if (todayCount > 500) {
-      return res.json({
-        message: `Already synced today. ${todayCount} records hain.`,
-        skipped: true,
-        todayCount,
-        isRealData: true
-      });
-    }
-
     res.json({
-      message: `Sync shuru ho gayi (aaj ke sirf ${todayCount} records the). 3-4 minute mein complete hogi.`,
-      todayCountBefore: todayCount
+      message: 'Sync shuru ho gayi. 3-4 minute mein complete hogi.',
+      timestamp: new Date().toISOString()
     });
 
+    // Har baar fresh sync — skip logic nahi
     const { runDailySync } = require('../services/agmarknetService');
     runDailySync().then(count => {
-      console.log(`[SYNC] Complete: ${count} new records. Total today: ${todayCount + count}`);
+      console.log(`[SYNC] Complete: ${count} records synced at ${new Date().toISOString()}`);
     }).catch(err => {
       console.error('[SYNC] Error:', err.message);
     });
-
   } catch (err) {
     console.error('triggerSync error:', err.message);
     res.status(500).json({ message: 'Sync fail: ' + err.message });
