@@ -6,8 +6,7 @@ const RESOURCE_ID = '9ef84268-d588-465a-a308-a864a43d0070';
 
 const COMMODITY_MAP = {
   'wheat': 'Wheat', 'wheat(other)': 'Wheat', 'wheat(dara)': 'Wheat',
-  'rice': 'Rice', 'paddy(dpr)': 'Rice', 'paddy': 'Rice',
-  'rice (common)': 'Rice', 'rice(common)': 'Rice',
+  'rice': 'Rice', 'paddy(dpr)': 'Rice', 'paddy': 'Rice', 'rice (common)': 'Rice',
   'maize': 'Maize', 'bajra': 'Bajra', 'jowar(white)': 'Jowar', 'jowar': 'Jowar',
   'barley': 'Barley',
   'onion': 'Onion', 'onion(local)': 'Onion', 'onion(big)': 'Onion',
@@ -57,32 +56,42 @@ function mapCommodityName(name) {
   return null;
 }
 
+// DD/MM/YYYY → YYYY-MM-DD
+function parseArrivalDate(raw) {
+  try {
+    if (!raw) return new Date().toISOString().split('T')[0];
+    const parts = raw.trim().split('/');
+    if (parts.length === 3) {
+      const [dd, mm, yyyy] = parts;
+      const d = new Date(`${yyyy}-${mm.padStart(2,'0')}-${dd.padStart(2,'0')}`);
+      if (!isNaN(d.getTime())) return d.toISOString().split('T')[0];
+    }
+  } catch { /* ignore */ }
+  return new Date().toISOString().split('T')[0];
+}
+
 async function fetchFromAgmarknet(state, limit = 1000) {
   if (!API_KEY) {
-    console.error('[AGMARKNET] ❌ API_KEY not set in environment');
+    console.error('[AGMARKNET] API_KEY not set');
     return [];
   }
-
   try {
     const url = `https://api.data.gov.in/resource/${RESOURCE_ID}?api-key=${API_KEY}&format=json&limit=${limit}&filters[State]=${encodeURIComponent(state)}`;
-    console.log(`[AGMARKNET] Fetching ${state} (limit ${limit})...`);
-
+    console.log(`[AGMARKNET] Fetching ${state}...`);
     const res = await fetch(url, { signal: AbortSignal.timeout(25000) });
-
     if (!res.ok) {
-      console.error(`[AGMARKNET] HTTP error ${res.status} for ${state}`);
+      console.error(`[AGMARKNET] HTTP ${res.status} for ${state}`);
       return [];
     }
-
     const data = await res.json();
     const records = data.records || [];
-    console.log(`[AGMARKNET] ${state}: ${records.length} records received (total available: ${data.total})`);
-
     if (records.length > 0) {
-      const sample = records[0];
-      console.log(`[AGMARKNET] Sample - commodity: "${sample.commodity}", market: "${sample.market}", price: ${sample.modal_price}`);
+      // Log what dates we got
+      const dates = [...new Set(records.map(r => r.arrival_date))].slice(0, 3);
+      console.log(`[AGMARKNET] ${state}: ${records.length} records, dates: ${dates.join(', ')}`);
+    } else {
+      console.log(`[AGMARKNET] ${state}: 0 records`);
     }
-
     return records;
   } catch (err) {
     console.error(`[AGMARKNET] Fetch error (${state}): ${err.message}`);
@@ -92,9 +101,7 @@ async function fetchFromAgmarknet(state, limit = 1000) {
 
 async function syncPricesToDB(records, stateName) {
   let synced = 0;
-  let skippedNoMapping = 0;
-  let skippedNoPrice = 0;
-  let skippedNoCrop = 0;
+  let skipped = 0;
   let errors = 0;
 
   for (const record of records) {
@@ -105,11 +112,16 @@ async function syncPricesToDB(records, stateName) {
       const districtRaw = record.district || '';
       const modalPrice = parseFloat(record.modal_price || 0);
 
-      if (modalPrice <= 0) { skippedNoPrice++; continue; }
-      if (!commodityRaw || !marketRaw) { skippedNoPrice++; continue; }
+      if (modalPrice <= 0 || !commodityRaw || !marketRaw) {
+        skipped++;
+        continue;
+      }
 
       const dbCropName = mapCommodityName(commodityRaw);
-      if (!dbCropName) { skippedNoMapping++; continue; }
+      if (!dbCropName) { skipped++; continue; }
+
+      // ✅ Agmarknet ka actual arrival_date use karo
+      const recordedDate = parseArrivalDate(record.arrival_date);
 
       const mandiName = `${marketRaw} Mandi`;
 
@@ -136,7 +148,7 @@ async function syncPricesToDB(records, stateName) {
             'SELECT id FROM mandis WHERE LOWER(name) = LOWER($1) AND LOWER(state) = LOWER($2)',
             [mandiName, stateRaw]
           );
-          if (!retry.rows.length) continue;
+          if (!retry.rows.length) { skipped++; continue; }
           mandiId = retry.rows[0].id;
         }
       }
@@ -146,43 +158,27 @@ async function syncPricesToDB(records, stateName) {
         'SELECT id FROM crops WHERE name_en = $1',
         [dbCropName]
       );
-      if (!cropResult.rows.length) { skippedNoCrop++; continue; }
+      if (!cropResult.rows.length) { skipped++; continue; }
 
-     // Agmarknet ka actual arrival_date parse karo
-let recordedDate = new Date();
-try {
-  const raw = record.arrival_date || '';
-  if (raw) {
-    const parts = raw.split('/');
-    if (parts.length === 3) {
-      // Format: DD/MM/YYYY
-      recordedDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
-      if (isNaN(recordedDate.getTime())) recordedDate = new Date();
-    }
-  }
-} catch { recordedDate = new Date(); }
-
-const dateStr = recordedDate.toISOString().split('T')[0];
-
-await pool.query(
-  `INSERT INTO prices (mandi_id, crop_id, price, recorded_date)
-   VALUES ($1, $2, $3, $4)
-   ON CONFLICT (mandi_id, crop_id, recorded_date)
-   DO UPDATE SET price = EXCLUDED.price`,
-  [mandiId, cropId, modalPrice, dateStr]
-);
+      // ✅ arrival_date se save karo
+      await pool.query(
+        `INSERT INTO prices (mandi_id, crop_id, price, recorded_date)
+         VALUES ($1, $2, $3, $4)
+         ON CONFLICT (mandi_id, crop_id, recorded_date)
+         DO UPDATE SET price = EXCLUDED.price`,
+        [mandiId, cropResult.rows[0].id, modalPrice, recordedDate]
+      );
       synced++;
 
     } catch (err) {
       errors++;
-      if (errors <= 5) console.error(`[AGMARKNET] Record error: ${err.message}`);
+      if (errors <= 3) console.error(`[AGMARKNET] Record error: ${err.message}`);
     }
   }
 
-  if (records.length > 0) {
-    console.log(`[AGMARKNET] Batch stats — Synced: ${synced}, No mapping: ${skippedNoMapping}, No crop in DB: ${skippedNoCrop}, No price: ${skippedNoPrice}, Errors: ${errors}`);
+  if (synced > 0 || skipped > 0) {
+    console.log(`[AGMARKNET] Batch: Synced=${synced}, Skipped=${skipped}, Errors=${errors}`);
   }
-
   return synced;
 }
 
@@ -193,7 +189,8 @@ async function runDailySync() {
     'Andhra Pradesh', 'Uttar Pradesh', 'Punjab', 'Haryana',
     'Rajasthan', 'Madhya Pradesh', 'Maharashtra', 'Gujarat',
     'Bihar', 'West Bengal', 'Karnataka', 'Tamil Nadu',
-    'Telangana', 'Odisha', 'Chhattisgarh', 'Uttarakhand'
+    'Telangana', 'Odisha', 'Chhattisgarh', 'Uttarakhand',
+    'Himachal Pradesh', 'Assam', 'Jharkhand', 'Kerala'
   ];
 
   let totalSynced = 0;
@@ -205,13 +202,13 @@ async function runDailySync() {
         const synced = await syncPricesToDB(records, state);
         totalSynced += synced;
       }
-      await new Promise(r => setTimeout(r, 800));
+      await new Promise(r => setTimeout(r, 600));
     } catch (err) {
       console.error(`[AGMARKNET] State ${state} failed: ${err.message}`);
     }
   }
 
-  console.log(`[AGMARKNET] === Sync Complete: ${totalSynced} real prices inserted ===`);
+  console.log(`[AGMARKNET] === Sync Complete: ${totalSynced} prices ===`);
   return totalSynced;
 }
 
