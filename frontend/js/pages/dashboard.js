@@ -28,6 +28,35 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Dashboard summary — skeleton → real
   try {
     const summary = await getDashboardSummary();
+    // Data freshness indicator
+if (summary && summary.recentPrices && summary.recentPrices.length > 0) {
+  const dateEl = document.createElement('p');
+  dateEl.style.cssText = 'font-size:0.75rem;color:var(--color-text-muted);font-family:var(--font-mono);margin-bottom:var(--space-sm);';
+
+  // Latest price date fetch karo
+  try {
+    const statusRes = await fetch(`${CONFIG.API_BASE_URL}/price/sync-status`);
+    if (statusRes.ok) {
+      const status = await statusRes.json();
+      if (status.latestDate) {
+        const latestDate = new Date(status.latestDate);
+        const today = new Date();
+        const diffDays = Math.floor((today - latestDate) / (1000 * 60 * 60 * 24));
+        const dateStr = latestDate.toLocaleDateString('en-IN', {
+          day: 'numeric', month: 'short', year: 'numeric'
+        });
+        const freshness = diffDays === 0
+          ? '🟢 Aaj ka data'
+          : diffDays === 1
+          ? '🟡 Kal ka data'
+          : `🟠 ${diffDays} din purana data (${dateStr})`;
+        dateEl.textContent = `Prices: ${freshness} | Agmarknet government data`;
+        const statsGrid = document.getElementById('statsReal');
+        if (statsGrid) statsGrid.parentNode.insertBefore(dateEl, statsGrid);
+      }
+    }
+  } catch { /* ignore */ }
+}
     await delay(500);
 
     const skeleton = document.getElementById('statsSkeleton');
