@@ -56,7 +56,6 @@ function mapCommodityName(name) {
   return null;
 }
 
-// DD/MM/YYYY → YYYY-MM-DD
 function parseArrivalDate(raw) {
   try {
     if (!raw) return new Date().toISOString().split('T')[0];
@@ -77,24 +76,17 @@ async function fetchFromAgmarknet(state, limit = 1000) {
   }
   try {
     const url = `https://api.data.gov.in/resource/${RESOURCE_ID}?api-key=${API_KEY}&format=json&limit=${limit}&filters[State]=${encodeURIComponent(state)}`;
-    console.log(`[AGMARKNET] Fetching ${state}...`);
-    const res = await fetch(url, { signal: AbortSignal.timeout(25000) });
-    if (!res.ok) {
-      console.error(`[AGMARKNET] HTTP ${res.status} for ${state}`);
-      return [];
-    }
+    const res = await fetch(url, { signal: AbortSignal.timeout(15000) });
+    if (!res.ok) return [];
     const data = await res.json();
     const records = data.records || [];
     if (records.length > 0) {
-      // Log what dates we got
-      const dates = [...new Set(records.map(r => r.arrival_date))].slice(0, 3);
-      console.log(`[AGMARKNET] ${state}: ${records.length} records, dates: ${dates.join(', ')}`);
-    } else {
-      console.log(`[AGMARKNET] ${state}: 0 records`);
+      const dates = [...new Set(records.map(r => r.arrival_date))].slice(0, 2);
+      console.log(`[AGMARKNET] ${state}: ${records.length} records | dates: ${dates.join(', ')}`);
     }
     return records;
   } catch (err) {
-    console.error(`[AGMARKNET] Fetch error (${state}): ${err.message}`);
+    console.error(`[AGMARKNET] ${state}: ${err.message}`);
     return [];
   }
 }
@@ -102,7 +94,6 @@ async function fetchFromAgmarknet(state, limit = 1000) {
 async function syncPricesToDB(records, stateName) {
   let synced = 0;
   let skipped = 0;
-  let errors = 0;
 
   for (const record of records) {
     try {
@@ -112,20 +103,14 @@ async function syncPricesToDB(records, stateName) {
       const districtRaw = record.district || '';
       const modalPrice = parseFloat(record.modal_price || 0);
 
-      if (modalPrice <= 0 || !commodityRaw || !marketRaw) {
-        skipped++;
-        continue;
-      }
+      if (modalPrice <= 0 || !commodityRaw || !marketRaw) { skipped++; continue; }
 
       const dbCropName = mapCommodityName(commodityRaw);
       if (!dbCropName) { skipped++; continue; }
 
-      // ✅ Agmarknet ka actual arrival_date use karo
       const recordedDate = parseArrivalDate(record.arrival_date);
-
       const mandiName = `${marketRaw} Mandi`;
 
-      // Mandi find or create
       let mandiId;
       const existingMandi = await pool.query(
         'SELECT id FROM mandis WHERE LOWER(name) = LOWER($1) AND LOWER(state) = LOWER($2)',
@@ -137,8 +122,7 @@ async function syncPricesToDB(records, stateName) {
       } else {
         const newMandi = await pool.query(
           `INSERT INTO mandis (name, state, district)
-           VALUES ($1, $2, $3)
-           ON CONFLICT DO NOTHING RETURNING id`,
+           VALUES ($1, $2, $3) ON CONFLICT DO NOTHING RETURNING id`,
           [mandiName, stateRaw, districtRaw]
         );
         if (newMandi.rows.length > 0) {
@@ -153,14 +137,11 @@ async function syncPricesToDB(records, stateName) {
         }
       }
 
-      // Crop find
       const cropResult = await pool.query(
-        'SELECT id FROM crops WHERE name_en = $1',
-        [dbCropName]
+        'SELECT id FROM crops WHERE name_en = $1', [dbCropName]
       );
       if (!cropResult.rows.length) { skipped++; continue; }
 
-      // ✅ arrival_date se save karo
       await pool.query(
         `INSERT INTO prices (mandi_id, crop_id, price, recorded_date)
          VALUES ($1, $2, $3, $4)
@@ -169,21 +150,16 @@ async function syncPricesToDB(records, stateName) {
         [mandiId, cropResult.rows[0].id, modalPrice, recordedDate]
       );
       synced++;
-
-    } catch (err) {
-      errors++;
-      if (errors <= 3) console.error(`[AGMARKNET] Record error: ${err.message}`);
-    }
+    } catch { skipped++; }
   }
 
-  if (synced > 0 || skipped > 0) {
-    console.log(`[AGMARKNET] Batch: Synced=${synced}, Skipped=${skipped}, Errors=${errors}`);
-  }
+  if (synced > 0) console.log(`[AGMARKNET] ${stateName}: Synced=${synced}, Skipped=${skipped}`);
   return synced;
 }
 
+// ✅ States ko parallel fetch karo — 3 at a time
 async function runDailySync() {
-  console.log('[AGMARKNET] === Daily Sync Start ===');
+  console.log('[AGMARKNET] === Sync Start ===');
 
   const states = [
     'Andhra Pradesh', 'Uttar Pradesh', 'Punjab', 'Haryana',
@@ -195,20 +171,26 @@ async function runDailySync() {
 
   let totalSynced = 0;
 
-  for (const state of states) {
-    try {
-      const records = await fetchFromAgmarknet(state, 1000);
-      if (records.length > 0) {
-        const synced = await syncPricesToDB(records, state);
-        totalSynced += synced;
-      }
-      await new Promise(r => setTimeout(r, 600));
-    } catch (err) {
-      console.error(`[AGMARKNET] State ${state} failed: ${err.message}`);
-    }
+  // 3 states at a time — faster but not overwhelming API
+  for (let i = 0; i < states.length; i += 3) {
+    const batch = states.slice(i, i + 3);
+    const results = await Promise.all(
+      batch.map(async (state) => {
+        try {
+          const records = await fetchFromAgmarknet(state, 1000);
+          if (records.length > 0) return await syncPricesToDB(records, state);
+          return 0;
+        } catch (err) {
+          console.error(`[AGMARKNET] ${state} failed: ${err.message}`);
+          return 0;
+        }
+      })
+    );
+    totalSynced += results.reduce((a, b) => a + b, 0);
+    await new Promise(r => setTimeout(r, 500));
   }
 
-  console.log(`[AGMARKNET] === Sync Complete: ${totalSynced} prices ===`);
+  console.log(`[AGMARKNET] === Complete: ${totalSynced} prices ===`);
   return totalSynced;
 }
 
