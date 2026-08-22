@@ -1,11 +1,12 @@
 const pool = require('../config/db');
 require('dotenv').config();
 
-// Direct Agmarknet API — fresher data
-const AGMARKNET_BASE = 'https://agmarknet.gov.in';
-// data.gov.in fallback
 const DATAGOV_KEY = process.env.AGMARKNET_API_KEY;
-const DATAGOV_RESOURCE = '9ef84268-d588-465a-a308-a864a43d0070';
+
+// Primary resource — more frequently updated
+const RESOURCE_PRIMARY = '35985678-0d79-46b4-9ed6-6f13308a1d24';
+// Fallback resource
+const RESOURCE_FALLBACK = '9ef84268-d588-465a-a308-a864a43d0070';
 
 const COMMODITY_MAP = {
   'wheat': 'Wheat', 'wheat(other)': 'Wheat', 'wheat(dara)': 'Wheat',
@@ -45,6 +46,7 @@ const COMMODITY_MAP = {
   'turmeric': 'Turmeric', 'black pepper': 'Black Pepper',
   'cumin(jeera)': 'Cumin', 'cumin': 'Cumin', 'jeera': 'Cumin',
   'coriander(seed)': 'Coriander Seeds', 'dhania': 'Coriander Seeds',
+  'pointed gourd (parval)': 'Bottle Gourd',
 };
 
 function mapCommodityName(name) {
@@ -60,7 +62,9 @@ function mapCommodityName(name) {
 function parseArrivalDate(raw) {
   try {
     if (!raw) return new Date().toISOString().split('T')[0];
-    const parts = raw.trim().split('/');
+    const str = raw.trim();
+    // DD/MM/YYYY format
+    const parts = str.split('/');
     if (parts.length === 3) {
       const [dd, mm, yyyy] = parts;
       const d = new Date(`${yyyy}-${mm.padStart(2,'0')}-${dd.padStart(2,'0')}`);
@@ -70,118 +74,57 @@ function parseArrivalDate(raw) {
   return new Date().toISOString().split('T')[0];
 }
 
-function formatDateForAgmarknet(date) {
-  const dd = String(date.getDate()).padStart(2, '0');
-  const mm = String(date.getMonth() + 1).padStart(2, '0');
-  const yyyy = date.getFullYear();
-  return `${dd}/${mm}/${yyyy}`;
-}
-
-// Method 1: data.gov.in API (existing, 3-7 day lag)
-async function fetchFromDataGov(state, limit = 1000) {
-  if (!DATAGOV_KEY) return [];
+async function fetchFromResource(resourceId, state, limit = 1000) {
+  if (!DATAGOV_KEY) {
+    console.error('[SYNC] DATAGOV_KEY not set');
+    return [];
+  }
   try {
-    const url = `https://api.data.gov.in/resource/${DATAGOV_RESOURCE}?api-key=${DATAGOV_KEY}&format=json&limit=${limit}&filters[State]=${encodeURIComponent(state)}`;
+    let url = `https://api.data.gov.in/resource/${resourceId}?api-key=${DATAGOV_KEY}&format=json&limit=${limit}`;
+    if (state) url += `&filters[State]=${encodeURIComponent(state)}`;
+
     const res = await fetch(url, { signal: AbortSignal.timeout(15000) });
     if (!res.ok) return [];
     const data = await res.json();
     const records = data.records || [];
+
     if (records.length > 0) {
-      const dates = [...new Set(records.map(r => r.arrival_date))].slice(0, 2);
-      console.log(`[DATAGOV] ${state}: ${records.length} records | ${dates.join(', ')}`);
+      // Date field dono resources mein alag hai
+      const sample = records[0];
+      const dateField = sample.arrival_date || sample.Arrival_Date || 'unknown';
+      console.log(`[SYNC] ${state || 'ALL'} (${resourceId.slice(0,8)}): ${records.length} records | date: ${dateField}`);
     }
     return records;
   } catch (err) {
-    console.error(`[DATAGOV] ${state}: ${err.message}`);
+    console.error(`[SYNC] Fetch error (${state}): ${err.message}`);
     return [];
   }
 }
 
-// Method 2: Agmarknet direct search API (fresher data)
-async function fetchFromAgmarknetDirect(fromDate, toDate) {
-  try {
-    const url = `https://agmarknet.gov.in/AgriDicQly/HmPageSearch.aspx?Tx_Commodity=0&Tx_State=0&Tx_District=0&Tx_Market=0&DateFrom=${fromDate}&DateTo=${toDate}&Fr_Date=${fromDate}&To_Date=${toDate}&Tx_Trend=0&Tx_CommodityHead=ALL&Tx_StateHead=--Select--&Tx_DistrictHead=--Select--&Tx_MarketHead=--Select--`;
-    const res = await fetch(url, {
-      signal: AbortSignal.timeout(20000),
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'Accept': 'text/html,application/xhtml+xml',
-        'Referer': 'https://agmarknet.gov.in/'
-      }
-    });
-    if (!res.ok) {
-      console.log(`[AGMARKNET-DIRECT] HTTP ${res.status}`);
-      return [];
-    }
-    const html = await res.text();
-    return parseAgmarknetHTML(html, fromDate);
-  } catch (err) {
-    console.error(`[AGMARKNET-DIRECT] Error: ${err.message}`);
-    return [];
-  }
-}
-
-function parseAgmarknetHTML(html, arrivalDate) {
-  const records = [];
-  try {
-    // Table rows extract karo
-    const rowRegex = /<tr[^>]*>\s*(<td[^>]*>.*?<\/td>\s*)+<\/tr>/gi;
-    const tdRegex = /<td[^>]*>(.*?)<\/td>/gi;
-    const rows = html.match(rowRegex) || [];
-
-    for (const row of rows) {
-      const cells = [];
-      let m;
-      const tdRe = /<td[^>]*>(.*?)<\/td>/gi;
-      while ((m = tdRe.exec(row)) !== null) {
-        const text = m[1].replace(/<[^>]+>/g, '').trim();
-        cells.push(text);
-      }
-
-      // Agmarknet table: State, District, Market, Commodity, Variety, Grade, Min, Max, Modal, Date
-      if (cells.length >= 9) {
-        const modalPrice = parseFloat(cells[8]?.replace(/,/g, '') || '0');
-        if (modalPrice > 0 && cells[3] && cells[2]) {
-          records.push({
-            state: cells[0] || '',
-            district: cells[1] || '',
-            market: cells[2] || '',
-            commodity: cells[3] || '',
-            variety: cells[4] || '',
-            min_price: cells[6] || '0',
-            max_price: cells[7] || '0',
-            modal_price: modalPrice.toString(),
-            arrival_date: cells[9] || arrivalDate
-          });
-        }
-      }
-    }
-  } catch (err) {
-    console.error('[PARSE] HTML parse error:', err.message);
-  }
-  return records;
-}
-
-async function syncPricesToDB(records, sourceName = '') {
+async function syncPricesToDB(records, label = '') {
   let synced = 0;
   let skipped = 0;
 
   for (const record of records) {
     try {
-      const commodityRaw = record.commodity || '';
-      const marketRaw = record.market || '';
-      const stateRaw = record.state || '';
-      const districtRaw = record.district || '';
-      const modalPrice = parseFloat(record.modal_price || 0);
+      // ✅ Dono resource ke field names support karo
+      const commodityRaw = record.commodity || record.Commodity || '';
+      const marketRaw = record.market || record.Market || '';
+      const stateRaw = record.state || record.State || '';
+      const districtRaw = record.district || record.District || '';
+      const arrivalDateRaw = record.arrival_date || record.Arrival_Date || '';
+      const modalPriceRaw = record.modal_price || record.Modal_Price || '0';
+      const modalPrice = parseFloat(String(modalPriceRaw).replace(/,/g, '') || 0);
 
       if (modalPrice <= 0 || !commodityRaw || !marketRaw) { skipped++; continue; }
 
       const dbCropName = mapCommodityName(commodityRaw);
       if (!dbCropName) { skipped++; continue; }
 
-      const recordedDate = parseArrivalDate(record.arrival_date);
+      const recordedDate = parseArrivalDate(arrivalDateRaw);
       const mandiName = `${marketRaw} Mandi`;
 
+      // Mandi find or create
       let mandiId;
       const existingMandi = await pool.query(
         'SELECT id FROM mandis WHERE LOWER(name) = LOWER($1) AND LOWER(state) = LOWER($2)',
@@ -224,7 +167,9 @@ async function syncPricesToDB(records, sourceName = '') {
     } catch { skipped++; }
   }
 
-  if (synced > 0) console.log(`[SYNC${sourceName}] Synced=${synced}, Skipped=${skipped}`);
+  if (synced > 0 || skipped > 0) {
+    console.log(`[SYNC${label}] Synced=${synced}, Skipped=${skipped}`);
+  }
   return synced;
 }
 
@@ -232,30 +177,6 @@ async function runDailySync() {
   console.log('[SYNC] === Daily Sync Start ===');
   let totalSynced = 0;
 
-  // Method 1: Direct Agmarknet (last 7 days)
-  try {
-    const today = new Date();
-    const weekAgo = new Date(today);
-    weekAgo.setDate(today.getDate() - 7);
-
-    const toDate = formatDateForAgmarknet(today);
-    const fromDate = formatDateForAgmarknet(weekAgo);
-
-    console.log(`[SYNC] Trying direct Agmarknet: ${fromDate} to ${toDate}`);
-    const directRecords = await fetchFromAgmarknetDirect(fromDate, toDate);
-
-    if (directRecords.length > 0) {
-      console.log(`[SYNC] Direct Agmarknet: ${directRecords.length} records found!`);
-      const synced = await syncPricesToDB(directRecords, '-DIRECT');
-      totalSynced += synced;
-    } else {
-      console.log('[SYNC] Direct Agmarknet: 0 records — trying data.gov.in fallback');
-    }
-  } catch (err) {
-    console.error('[SYNC] Direct fetch error:', err.message);
-  }
-
-  // Method 2: data.gov.in fallback (3 parallel batches)
   const states = [
     'Andhra Pradesh', 'Uttar Pradesh', 'Punjab', 'Haryana',
     'Rajasthan', 'Madhya Pradesh', 'Maharashtra', 'Gujarat',
@@ -264,23 +185,38 @@ async function runDailySync() {
     'Himachal Pradesh', 'Assam', 'Jharkhand', 'Kerala'
   ];
 
+  // Try primary resource first (35985678 — more frequent updates)
+  console.log('[SYNC] Trying primary resource (35985678)...');
   for (let i = 0; i < states.length; i += 4) {
     const batch = states.slice(i, i + 4);
     const results = await Promise.all(
       batch.map(async (state) => {
-        try {
-          const records = await fetchFromDataGov(state, 1000);
-          if (records.length > 0) return await syncPricesToDB(records, `-${state.split(' ')[0]}`);
-          return 0;
-        } catch { return 0; }
+        const records = await fetchFromResource(RESOURCE_PRIMARY, state, 1000);
+        if (records.length > 0) return await syncPricesToDB(records, `-${state.slice(0,4)}`);
+        return 0;
       })
     );
     totalSynced += results.reduce((a, b) => a + b, 0);
     await new Promise(r => setTimeout(r, 300));
   }
 
-  console.log(`[SYNC] === Complete: ${totalSynced} total prices ===`);
+  // Fallback to original resource (9ef84268)
+  console.log('[SYNC] Trying fallback resource (9ef84268)...');
+  for (let i = 0; i < states.length; i += 4) {
+    const batch = states.slice(i, i + 4);
+    const results = await Promise.all(
+      batch.map(async (state) => {
+        const records = await fetchFromResource(RESOURCE_FALLBACK, state, 1000);
+        if (records.length > 0) return await syncPricesToDB(records, `-FB-${state.slice(0,4)}`);
+        return 0;
+      })
+    );
+    totalSynced += results.reduce((a, b) => a + b, 0);
+    await new Promise(r => setTimeout(r, 300));
+  }
+
+  console.log(`[SYNC] === Complete: ${totalSynced} prices ===`);
   return totalSynced;
 }
 
-module.exports = { runDailySync, fetchFromAgmarknet: fetchFromDataGov };
+module.exports = { runDailySync, fetchFromAgmarknet: fetchFromResource };
