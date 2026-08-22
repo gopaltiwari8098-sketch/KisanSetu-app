@@ -1,10 +1,13 @@
-FROM python:3.9
+FROM node:20-alpine
 
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY package*.json ./
+
+RUN npm ci --omit=dev
 
 COPY . .
 
-CMD ["python", "app.py"]
+EXPOSE 10000
+
+CMD ["node", "server.js"]
